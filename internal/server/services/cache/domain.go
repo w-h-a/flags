@@ -15,8 +15,7 @@ func NewAllFlags() AllFlags {
 }
 
 type FlagState struct {
-	Value     any    `json:"value"`
-	Variant   string `json:"variant"`
-	Reason    string `json:"reason"`
-	Timestamp int64  `json:"timestamp"`
+	Value   any    `json:"value"`
+	Variant string `json:"variant"`
+	Reason  string `json:"reason"`
 }

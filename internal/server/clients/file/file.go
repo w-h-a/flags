@@ -10,5 +10,5 @@ var (
 )
 
 type Client interface {
-	Read(ctx context.Context) (map[string]Flag, error)
+	Read(ctx context.Context) (map[string]*Flag, error)
 }

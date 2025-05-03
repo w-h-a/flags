@@ -1,24 +1,27 @@
 package file
 
 const (
+	ReasonDisabled  string = "DISABLED"
 	ReasonRuleMatch string = "RULE_MATCH"
 	ReasonDefault   string = "DEFAULT"
-	ReasonDisabled  string = "DISABLED"
-
-	VariationDefault string = "default"
+	ReasonError     string = "ERROR"
 )
 
 type Flag struct {
-	Variations  map[string]*any `json:"variations" yaml:"variations"`
-	DefaultRule *Rule           `json:"defaultRule" yaml:"defaultRule"`
+	Disabled   *bool           `json:"disabled" yaml:"disabled"`
+	Variations map[string]*any `json:"variations" yaml:"variations"`
+	Rules      []*Rule         `json:"rules" yaml:"rules"`
 
-	Rules    []Rule `json:"rules" yaml:"rules"`
-	Disabled *bool  `json:"disabled" yaml:"disabled"`
+	DefaultRule *Rule
 }
 
-func (f *Flag) Evaluate(ctx EvaluationContext) (any, ResolutionDetails) {
+func (f *Flag) Evaluate() (any, ResolutionDetails) {
 	if f.IsDisabled() {
-		return ctx.DefaultValue, ResolutionDetails{Variant: VariationDefault, Reason: ReasonDisabled}
+		variant := f.DefaultRule.Evaluate(true)
+
+		resolutionDetails := ResolutionDetails{Variant: variant, Reason: ReasonDisabled}
+
+		return f.value(variant), resolutionDetails
 	}
 
 	if len(f.Rules) > 0 {
@@ -68,10 +71,6 @@ type Rule struct {
 
 func (r *Rule) Evaluate(_ bool) string {
 	return r.Variation
-}
-
-type EvaluationContext struct {
-	DefaultValue any
 }
 
 type ResolutionDetails struct {

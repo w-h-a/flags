@@ -41,6 +41,7 @@ func Factory(fileClient file.Client, notifiers ...message.Client) (serverv2.Serv
 	httpFlags := httphandlers.NewFlagsHandler(cacheService)
 	httpStatus := httphandlers.NewStatusHandler(cacheService)
 
+	router.Methods(http.MethodGet).Path("/flags/{key}").HandlerFunc(httpFlags.GetOne)
 	router.Methods(http.MethodGet).Path("/flags").HandlerFunc(httpFlags.GetAll)
 	router.Methods(http.MethodGet).Path("/status").HandlerFunc(httpStatus.GetStatus)
 

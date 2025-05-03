@@ -1,7 +1,9 @@
 show-it:
+  disabled: true
   variations:
-    enabled: true
+    default: false
     disabled: false
-  defaultRule:
-    variation: disabled
-  disabled: false
+    enabled: true
+  rules:
+    - name: rule1
+      variation: disabled

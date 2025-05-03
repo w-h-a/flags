@@ -3,8 +3,8 @@ package message
 import "github.com/w-h-a/flags/internal/server/clients/file"
 
 type Diff struct {
-	Deleted map[string]file.Flag   `json:"deleted"`
-	Added   map[string]file.Flag   `json:"added"`
+	Deleted map[string]*file.Flag  `json:"deleted"`
+	Added   map[string]*file.Flag  `json:"added"`
 	Updated map[string]DiffUpdated `json:"updated"`
 }
 
@@ -13,6 +13,6 @@ func (d *Diff) HasDiff() bool {
 }
 
 type DiffUpdated struct {
-	Before file.Flag `json:"old_value"`
-	After  file.Flag `json:"new_value"`
+	Before *file.Flag `json:"old_value"`
+	After  *file.Flag `json:"new_value"`
 }
