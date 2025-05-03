@@ -7,7 +7,12 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"github.com/w-h-a/flags/internal/server"
+	"github.com/w-h-a/flags/internal/server/clients/file"
+	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
+	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
 	"github.com/w-h-a/flags/internal/server/config"
+	"github.com/w-h-a/flags/internal/server/services/cache"
+	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
 	"github.com/w-h-a/pkg/utils/memoryutils"
@@ -80,19 +85,38 @@ func Server(ctx *cli.Context) error {
 	// metrics
 
 	// clients
+	// TODO: get this from config
+	fileClient := localfile.NewFileClient(
+		// TODO: get this from config
+		file.WithDir("."),
+		file.WithFiles("/flags.yaml"),
+	)
+
+	messageClient := localmessage.NewMessageClient()
 
 	// server
-	httpServer := server.Factory()
+	httpServer, cacheService, notifyService, err := server.Factory(fileClient, messageClient)
+	if err != nil {
+		return err
+	}
 
 	// wait group and error chan
 	wg := &sync.WaitGroup{}
-	errCh := make(chan error, 1)
+	errCh := make(chan error, 2)
 
 	// start http server
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		errCh <- httpServer.Start()
+	}()
+
+	// start cache updater
+	stop := make(chan struct{})
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errCh <- updateCache(cacheService, notifyService, stop)
 	}()
 
 	// block
@@ -117,5 +141,32 @@ func Server(ctx *cli.Context) error {
 
 	log.Info("successfully stopped server")
 
+	close(stop)
+
+	log.Info("successfully stopped cache")
+
 	return nil
+}
+
+func updateCache(cacheService *cache.Service, notifyService *notify.Service, stop chan struct{}) error {
+	// TODO: confirm poll interval is valid
+
+	// TODO: retrieve from config
+	ticker := time.NewTicker(time.Minute)
+
+	for {
+		select {
+		case <-ticker.C:
+			old, new, err := cacheService.RetrieveFlags()
+			if err != nil {
+				log.Warnf("failed to update the cache: %v", err)
+			}
+
+			notifyService.Notify(old, new)
+		case <-stop:
+			ticker.Stop()
+			notifyService.Close()
+			return nil
+		}
+	}
 }
