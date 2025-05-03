@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -10,6 +11,7 @@ import (
 
 type Flags struct {
 	cacheService *cache.Service
+	parser       *Parser
 }
 
 func (f *Flags) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +24,38 @@ func (f *Flags) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(bs))
+}
+
+func (f *Flags) GetOne(w http.ResponseWriter, r *http.Request) {
+	flagKey, err := f.parser.ParseFlagKey(r.Context(), r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+
+	flagValue, err := f.cacheService.Flag(flagKey)
+	if err != nil && errors.Is(err, cache.ErrNotFound) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "error: %s %v", flagKey, err)
+		return
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+
+	bs, err := json.Marshal(flagValue)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(bs))
 }
@@ -30,5 +63,6 @@ func (f *Flags) GetAll(w http.ResponseWriter, r *http.Request) {
 func NewFlagsHandler(cacheService *cache.Service) *Flags {
 	return &Flags{
 		cacheService: cacheService,
+		parser:       &Parser{},
 	}
 }

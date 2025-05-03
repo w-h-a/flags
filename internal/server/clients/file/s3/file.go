@@ -20,7 +20,7 @@ type client struct {
 	parser  *file.Parser
 }
 
-func (c *client) Read(ctx context.Context) (map[string]file.Flag, error) {
+func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	f, err := os.CreateTemp("", "feature_flag")
 	if err != nil {
 		return nil, err

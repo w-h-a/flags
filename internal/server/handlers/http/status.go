@@ -15,10 +15,10 @@ type Status struct {
 
 func (s *Status) GetStatus(w http.ResponseWriter, r *http.Request) {
 	status := map[string]any{
-		"env":          config.Env(),
-		"name":         config.Name(),
-		"version":      config.Version(),
-		"latestUpdate": s.cacheService.LatestUpdate(),
+		"env":        config.Env(),
+		"name":       config.Name(),
+		"version":    config.Version(),
+		"lastUpdate": s.cacheService.LastUpdate(),
 	}
 
 	bs, err := json.Marshal(status)
@@ -28,7 +28,7 @@ func (s *Status) GetStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(bs))
 }

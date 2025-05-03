@@ -12,7 +12,7 @@ type client struct {
 	parser  *file.Parser
 }
 
-func (c *client) Read(ctx context.Context) (map[string]file.Flag, error) {
+func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	file := "/"
 
 	// TODO: generalize

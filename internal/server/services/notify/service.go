@@ -14,7 +14,7 @@ type Service struct {
 	waitGroup *sync.WaitGroup
 }
 
-func (s *Service) Notify(old, new map[string]file.Flag) {
+func (s *Service) Notify(old, new map[string]*file.Flag) {
 	diff := s.diff(old, new)
 
 	if !diff.HasDiff() {
@@ -37,10 +37,10 @@ func (s *Service) Close() {
 	s.waitGroup.Wait()
 }
 
-func (s *Service) diff(old, new map[string]file.Flag) message.Diff {
+func (s *Service) diff(old, new map[string]*file.Flag) message.Diff {
 	diff := message.Diff{
-		Deleted: map[string]file.Flag{},
-		Added:   map[string]file.Flag{},
+		Deleted: map[string]*file.Flag{},
+		Added:   map[string]*file.Flag{},
 		Updated: map[string]message.DiffUpdated{},
 	}
 
