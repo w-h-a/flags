@@ -1,6 +1,7 @@
 package notify
 
 import (
+	"context"
 	"sync"
 
 	"github.com/google/go-cmp/cmp"
@@ -25,7 +26,7 @@ func (s *Service) Notify(old, new map[string]*file.Flag) {
 		s.waitGroup.Add(1)
 
 		go func() {
-			err := n.Send(diff, s.waitGroup)
+			err := n.Send(context.TODO(), diff, s.waitGroup)
 			if err != nil {
 				log.Errorf("notify service failed to send message: %v", err)
 			}

@@ -1,6 +1,7 @@
 package local
 
 import (
+	"context"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/message"
@@ -11,7 +12,7 @@ type client struct {
 	options message.Options
 }
 
-func (c *client) Send(diff message.Diff, wg *sync.WaitGroup) error {
+func (c *client) Send(ctx context.Context, diff message.Diff, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	for k := range diff.Deleted {
