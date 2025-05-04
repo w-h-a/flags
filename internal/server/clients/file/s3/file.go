@@ -60,6 +60,10 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 func NewFileClient(opts ...file.Option) file.Client {
 	options := file.NewOptions(opts...)
 
+	if err := options.Validate(); err != nil {
+		log.Fatalf("failed to configure s3 client: %v", err)
+	}
+
 	c := &client{
 		options: options,
 		parser:  &file.Parser{},

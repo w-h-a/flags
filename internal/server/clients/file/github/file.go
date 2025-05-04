@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -62,6 +63,10 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 
 func NewFileClient(opts ...file.Option) file.Client {
 	options := file.NewOptions(opts...)
+
+	if err := options.Validate(); err != nil {
+		log.Fatalf("failed to configure github client: %v", err)
+	}
 
 	httpClient := http.DefaultClient
 	httpClient.Timeout = 10 * time.Second

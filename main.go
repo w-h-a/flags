@@ -19,6 +19,29 @@ func main() {
 					return cmd.Server(ctx)
 				},
 			},
+			{
+				Name: "openfeature",
+				Action: func(ctx *cli.Context) error {
+					return cmd.OpenFeature(ctx)
+				},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "host",
+						Usage:    "Provide hostname of server",
+						Required: true,
+					},
+					&cli.IntFlag{
+						Name:     "port",
+						Usage:    "Provide the port of the server",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "flag",
+						Usage:    "Provide the flag key",
+						Required: true,
+					},
+				},
+			},
 		},
 	}
 

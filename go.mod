@@ -7,6 +7,8 @@ require (
 	github.com/gdexlab/go-render v1.0.1
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/mux v1.8.1
+	github.com/open-feature/go-sdk v1.14.1
+	github.com/open-feature/go-sdk-contrib/providers/ofrep v0.1.5
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/urfave/cli/v2 v2.27.6
 	github.com/w-h-a/pkg v0.40.0
@@ -38,6 +40,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
+	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect

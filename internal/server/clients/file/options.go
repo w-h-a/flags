@@ -1,6 +1,9 @@
 package file
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type Option func(o *Options)
 
@@ -8,6 +11,18 @@ type Options struct {
 	Dir     string
 	Files   []string
 	Context context.Context
+}
+
+func (o Options) Validate() error {
+	if len(o.Dir) == 0 {
+		return fmt.Errorf("missing directory")
+	}
+
+	if len(o.Files) == 0 {
+		return fmt.Errorf("missing files")
+	}
+
+	return nil
 }
 
 func WithDir(dir string) Option {

@@ -21,28 +21,6 @@ type Service struct {
 	mtx        sync.RWMutex
 }
 
-func (s *Service) Flags() AllFlags {
-	flags := map[string]*file.Flag{}
-
-	s.mtx.RLock()
-	maps.Copy(flags, s.store)
-	s.mtx.RUnlock()
-
-	allFlags := NewAllFlags()
-
-	for k, flag := range flags {
-		flagValue, resolutionDetails := flag.Evaluate()
-
-		allFlags.AddFlag(k, FlagState{
-			Value:   flagValue,
-			Variant: resolutionDetails.Variant,
-			Reason:  resolutionDetails.Reason,
-		})
-	}
-
-	return allFlags
-}
-
 func (s *Service) Flag(flagKey string) (FlagState, error) {
 	var flag *file.Flag
 	var ok bool
@@ -53,8 +31,8 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 
 	if !ok {
 		result := FlagState{
-			Value:  nil,
-			Reason: file.ReasonError,
+			Key:       flagKey,
+			ErrorCode: file.ErrorNotFound,
 		}
 
 		return result, ErrNotFound
@@ -69,6 +47,29 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 	}
 
 	return result, nil
+}
+
+func (s *Service) Flags() AllFlags {
+	flags := map[string]*file.Flag{}
+
+	s.mtx.RLock()
+	maps.Copy(flags, s.store)
+	s.mtx.RUnlock()
+
+	allFlags := NewAllFlags()
+
+	for k, flag := range flags {
+		flagValue, resolutionDetails := flag.Evaluate()
+
+		allFlags.AddFlag(FlagState{
+			Key:     k,
+			Value:   flagValue,
+			Variant: resolutionDetails.Variant,
+			Reason:  resolutionDetails.Reason,
+		})
+	}
+
+	return allFlags
 }
 
 func (s *Service) RetrieveFlags() (map[string]*file.Flag, map[string]*file.Flag, error) {

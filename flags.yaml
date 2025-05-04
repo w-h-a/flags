@@ -6,4 +6,4 @@ show-it:
     enabled: true
   rules:
     - name: rule1
-      variation: disabled
+      variation: enabled

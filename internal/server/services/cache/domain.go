@@ -1,21 +1,23 @@
 package cache
 
 type AllFlags struct {
-	Flags map[string]FlagState `json:"flags"`
+	Flags []FlagState `json:"flags"`
 }
 
-func (a *AllFlags) AddFlag(key string, state FlagState) {
-	a.Flags[key] = state
+func (a *AllFlags) AddFlag(state FlagState) {
+	a.Flags = append(a.Flags, state)
 }
 
 func NewAllFlags() AllFlags {
 	return AllFlags{
-		Flags: map[string]FlagState{},
+		Flags: []FlagState{},
 	}
 }
 
 type FlagState struct {
-	Value   any    `json:"value"`
-	Variant string `json:"variant"`
-	Reason  string `json:"reason"`
+	Key       string `json:"key"`
+	Value     any    `json:"value,omitempty"`
+	Variant   string `json:"variant,omitempty"`
+	Reason    string `json:"reason,omitempty"`
+	ErrorCode string `json:"errorCode,omitempty"`
 }
