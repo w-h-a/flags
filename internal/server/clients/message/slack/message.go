@@ -2,11 +2,10 @@ package slack
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -25,11 +24,10 @@ const (
 
 type client struct {
 	options    message.Options
-	slackUrl   *url.URL
 	httpClient *http.Client
 }
 
-func (c *client) Send(diff message.Diff, wg *sync.WaitGroup) error {
+func (c *client) Send(ctx context.Context, diff message.Diff, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	msg := c.convert(diff)
@@ -39,21 +37,24 @@ func (c *client) Send(diff message.Diff, wg *sync.WaitGroup) error {
 		return fmt.Errorf("failed to marshal message: %v", err)
 	}
 
-	req := http.Request{
-		Method: http.MethodPost,
-		URL:    c.slackUrl,
-		Body:   io.NopCloser(bytes.NewReader(bs)),
-		Header: map[string][]string{"content-Type": {"application/json"}},
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		c.options.URL,
+		bytes.NewReader(bs),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %v", err)
 	}
 
-	rsp, err := c.httpClient.Do(&req)
+	req.Header.Add("content-type", "application/json")
+
+	rsp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %v", err)
 	}
 
-	defer func() {
-		rsp.Body.Close()
-	}()
+	defer rsp.Body.Close()
 
 	if rsp.StatusCode > 399 {
 		return fmt.Errorf("received status code %d from slack", rsp.StatusCode)
@@ -149,17 +150,11 @@ func NewMessageClient(opts ...message.Option) message.Client {
 		log.Fatal("slack message client requires URL")
 	}
 
-	slackUrl, err := url.Parse(options.URL)
-	if err != nil {
-		log.Fatal("slack message client requires valid URL")
-	}
-
 	httpClient := http.DefaultClient
 	httpClient.Timeout = 10 * time.Second
 
 	c := &client{
 		options:    options,
-		slackUrl:   slackUrl,
 		httpClient: httpClient,
 	}
 

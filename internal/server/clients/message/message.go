@@ -1,7 +1,10 @@
 package message
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 type Client interface {
-	Send(diff Diff, waitGroup *sync.WaitGroup) error
+	Send(ctx context.Context, diff Diff, waitGroup *sync.WaitGroup) error
 }
