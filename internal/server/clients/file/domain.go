@@ -2,9 +2,10 @@ package file
 
 const (
 	ReasonDisabled  string = "DISABLED"
-	ReasonRuleMatch string = "RULE_MATCH"
+	ReasonRuleMatch string = "TARGETING_MATCH"
 	ReasonDefault   string = "DEFAULT"
-	ReasonError     string = "ERROR"
+
+	ErrorNotFound string = "FLAG_NOT_FOUND"
 )
 
 type Flag struct {

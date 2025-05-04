@@ -14,22 +14,7 @@ type Flags struct {
 	parser       *Parser
 }
 
-func (f *Flags) GetAll(w http.ResponseWriter, r *http.Request) {
-	flags := f.cacheService.Flags()
-
-	bs, err := json.Marshal(flags)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(bs))
-}
-
-func (f *Flags) GetOne(w http.ResponseWriter, r *http.Request) {
+func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 	flagKey, err := f.parser.ParseFlagKey(r.Context(), r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -49,6 +34,21 @@ func (f *Flags) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bs, err := json.Marshal(flagValue)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "error: %v", err)
+		return
+	}
+
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(bs))
+}
+
+func (f *Flags) PostAll(w http.ResponseWriter, r *http.Request) {
+	flags := f.cacheService.Flags()
+
+	bs, err := json.Marshal(flags)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error: %v", err)

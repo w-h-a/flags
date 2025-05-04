@@ -39,10 +39,12 @@ func Factory(fileClient file.Client, notifiers ...message.Client) (serverv2.Serv
 	router := mux.NewRouter()
 
 	httpFlags := httphandlers.NewFlagsHandler(cacheService)
+	httpConfig := httphandlers.NewConfigHandler()
 	httpStatus := httphandlers.NewStatusHandler(cacheService)
 
-	router.Methods(http.MethodGet).Path("/flags/{key}").HandlerFunc(httpFlags.GetOne)
-	router.Methods(http.MethodGet).Path("/flags").HandlerFunc(httpFlags.GetAll)
+	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags/{key}").HandlerFunc(httpFlags.PostOne)
+	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags").HandlerFunc(httpFlags.PostAll)
+	router.Methods(http.MethodGet).Path("/ofrep/v1/configuration").HandlerFunc(httpConfig.GetConfig)
 	router.Methods(http.MethodGet).Path("/status").HandlerFunc(httpStatus.GetStatus)
 
 	httpOpts := []serverv2.ServerOption{
