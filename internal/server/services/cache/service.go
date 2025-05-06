@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"maps"
+	"sort"
 	"sync"
 	"time"
 
@@ -41,6 +42,7 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 	flagValue, resolutionDetails := flag.Evaluate()
 
 	result := FlagState{
+		Key:     flagKey,
 		Value:   flagValue,
 		Variant: resolutionDetails.Variant,
 		Reason:  resolutionDetails.Reason,
@@ -68,6 +70,10 @@ func (s *Service) Flags() AllFlags {
 			Reason:  resolutionDetails.Reason,
 		})
 	}
+
+	sort.Slice(allFlags.Flags, func(i, j int) bool {
+		return allFlags.Flags[i].Key < allFlags.Flags[j].Key
+	})
 
 	return allFlags
 }

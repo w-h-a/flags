@@ -8,8 +8,12 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/flags/internal/server/clients/file/github"
 	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
+	"github.com/w-h-a/flags/internal/server/clients/file/s3"
+	"github.com/w-h-a/flags/internal/server/clients/message"
 	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
+	"github.com/w-h-a/flags/internal/server/clients/message/slack"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/notify"
@@ -85,14 +89,9 @@ func Server(ctx *cli.Context) error {
 	// metrics
 
 	// clients
-	// TODO: get this from config
-	fileClient := localfile.NewFileClient(
-		// TODO: get this from config
-		file.WithDir("."),
-		file.WithFiles("/flags.yaml"),
-	)
+	fileClient := initFileClient()
 
-	messageClient := localmessage.NewMessageClient()
+	messageClient := initMessageClient()
 
 	// server
 	httpServer, cacheService, notifyService, err := server.Factory(fileClient, messageClient)
@@ -168,5 +167,35 @@ func updateCache(cacheService *cache.Service, notifyService *notify.Service, sto
 			notifyService.Close()
 			return nil
 		}
+	}
+}
+
+func initFileClient() file.Client {
+	switch config.FileClient() {
+	case "github":
+		return github.NewFileClient(
+			file.WithDir(config.FileClientDir()),
+			file.WithFiles(config.FileClientFiles()...),
+			github.WithGithubToken(config.FileClientToken()),
+		)
+	case "s3":
+		return s3.NewFileClient(
+			file.WithDir(config.FileClientDir()),
+			file.WithFiles(config.FileClientFiles()...),
+		)
+	default:
+		return localfile.NewFileClient(
+			file.WithDir(config.FileClientDir()),
+			file.WithFiles(config.FileClientFiles()...),
+		)
+	}
+}
+
+func initMessageClient() message.Client {
+	switch config.MessageClient() {
+	case "slack":
+		return slack.NewMessageClient()
+	default:
+		return localmessage.NewMessageClient()
 	}
 }

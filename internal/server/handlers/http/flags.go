@@ -24,7 +24,7 @@ func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 
 	flagValue, err := f.cacheService.Flag(flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "error: %s %v", flagKey, err)
 		return
 	} else if err != nil {
