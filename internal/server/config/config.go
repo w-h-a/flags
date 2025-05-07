@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -17,16 +18,28 @@ type config struct {
 	httpAddress   string
 	tracesAddress string
 	// metricsAddress string
+	flagFormat      string
+	fileClient      string
+	fileClientDir   string
+	fileClientFiles []string
+	fileClientToken string
+	messageClient   string
 }
 
 func New() {
 	once.Do(func() {
 		instance = &config{
-			env:           "dev",
-			name:          "flags",
-			version:       "0.1.0-alpha.0",
-			httpAddress:   ":0",
-			tracesAddress: "localhost:4318",
+			env:             "dev",
+			name:            "flags",
+			version:         "0.1.0-alpha.0",
+			httpAddress:     ":0",
+			tracesAddress:   "localhost:4318",
+			flagFormat:      "yaml",
+			fileClient:      "local",
+			fileClientDir:   ".",
+			fileClientFiles: []string{"/flags.yaml"},
+			fileClientToken: "",
+			messageClient:   "local",
 		}
 
 		env := os.Getenv("ENV")
@@ -52,6 +65,36 @@ func New() {
 		tracesAddress := os.Getenv("TRACES_ADDRESS")
 		if len(tracesAddress) > 0 {
 			instance.tracesAddress = tracesAddress
+		}
+
+		flagFormat := os.Getenv("FLAG_FORMAT")
+		if len(flagFormat) > 0 {
+			instance.flagFormat = flagFormat
+		}
+
+		fileClient := os.Getenv("FILE_CLIENT")
+		if len(fileClient) > 0 {
+			instance.fileClient = fileClient
+		}
+
+		fileClientDir := os.Getenv("FILE_CLIENT_DIR")
+		if len(fileClientDir) > 0 {
+			instance.fileClientDir = fileClientDir
+		}
+
+		fileClientFiles := os.Getenv("FILE_CLIENT_FILES")
+		if len(fileClientFiles) > 0 {
+			instance.fileClientFiles = append(instance.fileClientFiles, strings.Split(fileClientFiles, ",")...)
+		}
+
+		fileClientToken := os.Getenv("FILE_CLIENT_TOKEN")
+		if len(fileClientToken) > 0 {
+			instance.fileClientToken = fileClientToken
+		}
+
+		messageClient := os.Getenv("MESSAGE_CLIENT")
+		if len(messageClient) > 0 {
+			instance.messageClient = messageClient
 		}
 	})
 }
@@ -94,4 +137,71 @@ func TracesAddress() string {
 	}
 
 	return instance.tracesAddress
+}
+
+func FlagFormat() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.flagFormat
+}
+
+func FileClient() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.fileClient
+}
+
+func FileClientDir() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.fileClientDir
+}
+
+func FileClientFiles() []string {
+	if instance == nil {
+		return []string{}
+	}
+
+	return instance.fileClientFiles
+}
+
+func FileClientToken() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.fileClientToken
+}
+
+func MessageClient() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.messageClient
+}
+
+// used for test purposes only
+func Reset() {
+	instance = &config{
+		env:             "dev",
+		name:            "flags",
+		version:         "0.1.0-alpha.0",
+		httpAddress:     ":0",
+		tracesAddress:   "localhost:4318",
+		flagFormat:      "yaml",
+		fileClient:      "local",
+		fileClientDir:   ".",
+		fileClientFiles: []string{"/flags.yaml"},
+		fileClientToken: "",
+		messageClient:   "local",
+	}
+
+	once = sync.Once{}
 }

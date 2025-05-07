@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/w-h-a/flags/internal/server/config"
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,12 +16,15 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 	var flags map[string]*Flag
 	var err error
 
-	// TODO: from config
-	switch strings.ToLower("yaml") {
+	switch strings.ToLower(config.FlagFormat()) {
 	case "json":
 		err = json.Unmarshal(bs, &flags)
 	default:
 		err = yaml.Unmarshal(bs, &flags)
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	for _, flag := range flags {
@@ -63,7 +67,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 		}
 	}
 
-	return flags, err
+	return flags, nil
 }
 
 func (p *Parser) ParseRule(rule *Rule) error {

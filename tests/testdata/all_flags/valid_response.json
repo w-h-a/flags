@@ -1,0 +1,1 @@
+{"flags":[{"key":"allow-access","value":false,"variant":"false","reason":"TARGETING_MATCH"},{"key":"bare-minimum-flag","value":"hello, world","variant":"default","reason":"DEFAULT"},{"key":"disabled-flag","value":false,"variant":"default","reason":"DISABLED"},{"key":"number-flag","value":2,"variant":"true","reason":"TARGETING_MATCH"}]}
