@@ -13,6 +13,8 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
 	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
+	"github.com/w-h-a/flags/internal/server/clients/report"
+	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -113,11 +115,16 @@ func TestFlagEval(t *testing.T) {
 			file.WithFiles(config.FileClientFiles()...),
 		)
 
+		reportClient := localreport.NewReportClient(
+			report.WithDir(config.ReportClientDir()),
+		)
+
 		messageClient := localmessage.NewMessageClient()
 
 		// servers
-		httpServer, _, notifyService, err := server.Factory(
+		httpServer, _, exportService, notifyService, err := server.Factory(
 			fileClient,
+			reportClient,
 			messageClient,
 		)
 		require.NoError(t, err)
@@ -145,6 +152,7 @@ func TestFlagEval(t *testing.T) {
 
 			t.Cleanup(func() {
 				rsp.Body.Close()
+				exportService.Close()
 				notifyService.Close()
 				config.Reset()
 			})
