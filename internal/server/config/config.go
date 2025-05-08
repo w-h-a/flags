@@ -12,12 +12,12 @@ var (
 )
 
 type config struct {
-	env           string
-	name          string
-	version       string
-	httpAddress   string
-	tracesAddress string
-	// metricsAddress string
+	env             string
+	name            string
+	version         string
+	httpAddress     string
+	tracesAddress   string
+	metricsAddress  string
 	flagFormat      string
 	fileClient      string
 	fileClientDir   string
@@ -36,6 +36,7 @@ func New() {
 			version:         "0.1.0-alpha.0",
 			httpAddress:     ":0",
 			tracesAddress:   "localhost:4318",
+			metricsAddress:  "localhost:4318",
 			flagFormat:      "yaml",
 			fileClient:      "local",
 			fileClientDir:   ".",
@@ -69,6 +70,11 @@ func New() {
 		tracesAddress := os.Getenv("TRACES_ADDRESS")
 		if len(tracesAddress) > 0 {
 			instance.tracesAddress = tracesAddress
+		}
+
+		metricsAddress := os.Getenv("METRICS_ADDRESS")
+		if len(metricsAddress) > 0 {
+			instance.metricsAddress = metricsAddress
 		}
 
 		flagFormat := os.Getenv("FLAG_FORMAT")
@@ -153,6 +159,14 @@ func TracesAddress() string {
 	return instance.tracesAddress
 }
 
+func MetricsAddress() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.metricsAddress
+}
+
 func FlagFormat() string {
 	if instance == nil {
 		return ""
@@ -225,6 +239,7 @@ func Reset() {
 		version:         "0.1.0-alpha.0",
 		httpAddress:     ":0",
 		tracesAddress:   "localhost:4318",
+		metricsAddress:  "localhost:4318",
 		flagFormat:      "yaml",
 		fileClient:      "local",
 		fileClientDir:   ".",

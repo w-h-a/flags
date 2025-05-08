@@ -26,9 +26,13 @@ import (
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
 	"github.com/w-h-a/pkg/utils/memoryutils"
+	"go.opentelemetry.io/contrib/instrumentation/host"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
@@ -93,6 +97,40 @@ func Server(ctx *cli.Context) error {
 	}()
 
 	// metrics
+	metricsExporter, err := otlpmetrichttp.New(
+		instCtx,
+		otlpmetrichttp.WithEndpoint(config.MetricsAddress()),
+		otlpmetrichttp.WithInsecure(),
+	)
+	if err != nil {
+		return err
+	}
+
+	mp := metric.NewMeterProvider(
+		metric.WithResource(resource),
+		metric.WithReader(
+			metric.NewPeriodicReader(
+				metricsExporter,
+				metric.WithInterval(15*time.Second),
+				metric.WithProducer(runtime.NewProducer()),
+			),
+		),
+	)
+
+	otel.SetMeterProvider(mp)
+	defer func() {
+		if err := mp.Shutdown(instCtx); err != nil {
+			log.Warnf("failed to gracefully shutdown metric provider: %v", err)
+		}
+	}()
+
+	if err := host.Start(); err != nil {
+		return err
+	}
+
+	if err := runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Second)); err != nil {
+		return err
+	}
 
 	// clients
 	fileClient := initFileClient()
