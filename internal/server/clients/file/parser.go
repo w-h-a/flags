@@ -58,12 +58,26 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 		}
 
 		// more complicated requirement checks
-		flagValue, _ := flag.Evaluate()
+		var variantType string
+		var err error
 
-		switch v := flagValue; v.(type) {
-		case int, float64, bool, string:
-		default:
-			return nil, fmt.Errorf("flag value %+v is not supported", v)
+		for _, variant := range flag.Variations {
+			var currentType string
+
+			if len(variantType) > 0 {
+				currentType, err = p.extractVariantType(variant)
+				if err != nil {
+					return nil, err
+				}
+				if currentType != variantType {
+					return nil, fmt.Errorf("variants have different types")
+				}
+			} else {
+				variantType, err = p.extractVariantType(variant)
+				if err != nil {
+					return nil, err
+				}
+			}
 		}
 	}
 
@@ -80,4 +94,19 @@ func (p *Parser) ParseRule(rule *Rule) error {
 	}
 
 	return nil
+}
+
+func (p *Parser) extractVariantType(variant *any) (string, error) {
+	v := (*variant)
+
+	switch v.(type) {
+	case int, float64:
+		return "number", nil
+	case bool:
+		return "bool", nil
+	case string:
+		return "string", nil
+	default:
+		return "", fmt.Errorf("flag value %+v is not supported", v)
+	}
 }
