@@ -16,7 +16,7 @@ import (
 
 type client struct {
 	options file.Options
-	cfg     aws.Config
+	awsCfg  aws.Config
 	parser  *file.Parser
 }
 
@@ -26,7 +26,7 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 		return nil, err
 	}
 
-	sess, err := session.NewSession(&c.cfg)
+	sess, err := session.NewSession(&c.awsCfg)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +71,8 @@ func NewFileClient(opts ...file.Option) file.Client {
 
 	if cfg, ok := AWSConfig(options.Context); !ok {
 		log.Fatalf("aws config is required for s3 retriever")
-		return nil
 	} else {
-		c.cfg = cfg
+		c.awsCfg = cfg
 	}
 
 	return c

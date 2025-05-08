@@ -6,9 +6,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	"github.com/w-h-a/flags/internal/server/clients/message"
+	"github.com/w-h-a/flags/internal/server/clients/report"
 	"github.com/w-h-a/flags/internal/server/config"
 	httphandlers "github.com/w-h-a/flags/internal/server/handlers/http"
 	"github.com/w-h-a/flags/internal/server/services/cache"
+	"github.com/w-h-a/flags/internal/server/services/export"
 	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/serverv2"
 	httpserver "github.com/w-h-a/pkg/serverv2/http"
@@ -16,14 +18,19 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-func Factory(fileClient file.Client, notifiers ...message.Client) (serverv2.Server, *cache.Service, *notify.Service, error) {
+func Factory(
+	fileClient file.Client,
+	reportClient report.Client,
+	notifiers ...message.Client,
+) (serverv2.Server, *cache.Service, *export.Service, *notify.Service, error) {
 	// services
 	cacheService := cache.New(fileClient)
+	exportService := export.New(reportClient)
 	notifyService := notify.New(notifiers...)
 
 	old, new, err := cacheService.RetrieveFlags()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
 	notifyService.Notify(old, new)
@@ -38,7 +45,7 @@ func Factory(fileClient file.Client, notifiers ...message.Client) (serverv2.Serv
 	// create http server
 	router := mux.NewRouter()
 
-	httpFlags := httphandlers.NewFlagsHandler(cacheService)
+	httpFlags := httphandlers.NewFlagsHandler(cacheService, exportService)
 	httpConfig := httphandlers.NewConfigHandler()
 	httpStatus := httphandlers.NewStatusHandler(cacheService)
 
@@ -66,5 +73,5 @@ func Factory(fileClient file.Client, notifiers ...message.Client) (serverv2.Serv
 
 	httpServer.Handle(handler)
 
-	return httpServer, cacheService, notifyService, nil
+	return httpServer, cacheService, exportService, notifyService, nil
 }

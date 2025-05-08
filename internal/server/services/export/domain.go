@@ -1,0 +1,14 @@
+package export
+
+const (
+	MaxEventsInMemory = int64(100000)
+)
+
+type Event struct {
+	CreationDate int64  `json:"creationDate"`
+	Key          string `json:"key"`
+	Value        any    `json:"value,omitempty"`
+	Variant      string `json:"variant,omitempty"`
+	Reason       string `json:"reason,omitempty"`
+	ErrorCode    string `json:"errorCode,omitempty"`
+}

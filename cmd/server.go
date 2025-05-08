@@ -5,17 +5,22 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/urfave/cli/v2"
 	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	"github.com/w-h-a/flags/internal/server/clients/file/github"
 	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
-	"github.com/w-h-a/flags/internal/server/clients/file/s3"
+	s3file "github.com/w-h-a/flags/internal/server/clients/file/s3"
 	"github.com/w-h-a/flags/internal/server/clients/message"
 	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
 	"github.com/w-h-a/flags/internal/server/clients/message/slack"
+	"github.com/w-h-a/flags/internal/server/clients/report"
+	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
+	s3report "github.com/w-h-a/flags/internal/server/clients/report/s3"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/internal/server/services/cache"
+	"github.com/w-h-a/flags/internal/server/services/export"
 	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -90,18 +95,18 @@ func Server(ctx *cli.Context) error {
 
 	// clients
 	fileClient := initFileClient()
-
+	reportClient := initReportClient()
 	messageClient := initMessageClient()
 
-	// server
-	httpServer, cacheService, notifyService, err := server.Factory(fileClient, messageClient)
+	// server + services
+	httpServer, cacheService, exportService, notifyService, err := server.Factory(fileClient, reportClient, messageClient)
 	if err != nil {
 		return err
 	}
 
 	// wait group and error chan
 	wg := &sync.WaitGroup{}
-	errCh := make(chan error, 2)
+	errCh := make(chan error, 3)
 
 	// start http server
 	wg.Add(1)
@@ -111,11 +116,19 @@ func Server(ctx *cli.Context) error {
 	}()
 
 	// start cache updater
-	stop := make(chan struct{})
+	cacheStop := make(chan struct{})
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errCh <- updateCache(cacheService, notifyService, stop)
+		errCh <- updateCache(cacheService, notifyService, cacheStop)
+	}()
+
+	// start exporter
+	exportStop := make(chan struct{})
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		errCh <- exportReports(exportService, exportStop)
 	}()
 
 	// block
@@ -133,16 +146,20 @@ func Server(ctx *cli.Context) error {
 		wg.Wait()
 	}()
 
+	close(exportStop)
+
+	log.Info("successfully stopped export")
+
+	close(cacheStop)
+
+	log.Info("successfully stopped cache")
+
 	select {
 	case <-wait:
 	case <-time.After(30 * time.Second):
 	}
 
 	log.Info("successfully stopped server")
-
-	close(stop)
-
-	log.Info("successfully stopped cache")
 
 	return nil
 }
@@ -170,6 +187,24 @@ func updateCache(cacheService *cache.Service, notifyService *notify.Service, sto
 	}
 }
 
+func exportReports(exportService *export.Service, stop chan struct{}) error {
+	// TODO: confirm
+
+	// TODO: retrieve from config
+	ticker := time.NewTicker(time.Minute)
+
+	for {
+		select {
+		case <-ticker.C:
+			exportService.Flush()
+		case <-stop:
+			ticker.Stop()
+			exportService.Close()
+			return nil
+		}
+	}
+}
+
 func initFileClient() file.Client {
 	switch config.FileClient() {
 	case "github":
@@ -179,14 +214,29 @@ func initFileClient() file.Client {
 			github.WithGithubToken(config.FileClientToken()),
 		)
 	case "s3":
-		return s3.NewFileClient(
+		return s3file.NewFileClient(
 			file.WithDir(config.FileClientDir()),
 			file.WithFiles(config.FileClientFiles()...),
+			s3file.WithAWSConfig(aws.Config{}),
 		)
 	default:
 		return localfile.NewFileClient(
 			file.WithDir(config.FileClientDir()),
 			file.WithFiles(config.FileClientFiles()...),
+		)
+	}
+}
+
+func initReportClient() report.Client {
+	switch config.ReportClient() {
+	case "s3":
+		return s3report.NewReportClient(
+			report.WithDir(config.ReportClientDir()),
+			s3report.WithAWSConfig(aws.Config{}),
+		)
+	default:
+		return localreport.NewReportClient(
+			report.WithDir(config.ReportClientDir()),
 		)
 	}
 }

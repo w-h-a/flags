@@ -5,13 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/w-h-a/flags/internal/server/services/cache"
+	"github.com/w-h-a/flags/internal/server/services/export"
 )
 
 type Flags struct {
-	cacheService *cache.Service
-	parser       *Parser
+	cacheService  *cache.Service
+	exportService *export.Service
+	parser        *Parser
 }
 
 func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +25,7 @@ func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flagValue, err := f.cacheService.Flag(flagKey)
+	flagState, err := f.cacheService.Flag(flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "error: %s %v", flagKey, err)
@@ -33,7 +36,18 @@ func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bs, err := json.Marshal(flagValue)
+	event := export.Event{
+		CreationDate: time.Now().Unix(),
+		Key:          flagState.Key,
+		Value:        flagState.Value,
+		Variant:      flagState.Variant,
+		Reason:       flagState.Reason,
+		ErrorCode:    flagState.ErrorCode,
+	}
+
+	f.exportService.Add(event)
+
+	bs, err := json.Marshal(flagState)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "error: %v", err)
@@ -60,9 +74,10 @@ func (f *Flags) PostAll(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(bs))
 }
 
-func NewFlagsHandler(cacheService *cache.Service) *Flags {
+func NewFlagsHandler(cacheService *cache.Service, exportService *export.Service) *Flags {
 	return &Flags{
-		cacheService: cacheService,
-		parser:       &Parser{},
+		cacheService:  cacheService,
+		exportService: exportService,
+		parser:        &Parser{},
 	}
 }
