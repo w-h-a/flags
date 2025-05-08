@@ -1,4 +1,4 @@
-package github
+package gitlab
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("https://raw.githubusercontent.com/%s/main/%s?ref=main", c.options.Dir, file),
+		fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/files/%s", c.options.Dir, file),
 		strings.NewReader(""),
 	)
 	if err != nil {
@@ -33,7 +33,7 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	}
 
 	if len(c.options.Token) > 0 {
-		req.Header.Add("authorization", fmt.Sprintf("token %s", c.options.Token))
+		req.Header.Add("private-token", c.options.Token)
 	}
 
 	rsp, err := c.httpClient.Do(req)
@@ -59,7 +59,7 @@ func NewFileClient(opts ...file.Option) file.Client {
 	options := file.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatalf("failed to configure github client: %v", err)
+		log.Fatalf("failed to configure gitlab client: %v", err)
 	}
 
 	httpClient := http.DefaultClient
