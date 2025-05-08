@@ -10,6 +10,7 @@ type Option func(o *Options)
 type Options struct {
 	Dir     string
 	Files   []string
+	Token   string
 	Context context.Context
 }
 
@@ -34,6 +35,12 @@ func WithDir(dir string) Option {
 func WithFiles(files ...string) Option {
 	return func(o *Options) {
 		o.Files = append(o.Files, files...)
+	}
+}
+
+func WithToken(token string) Option {
+	return func(o *Options) {
+		o.Token = token
 	}
 }
 

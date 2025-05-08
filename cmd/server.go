@@ -10,6 +10,7 @@ import (
 	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	"github.com/w-h-a/flags/internal/server/clients/file/github"
+	"github.com/w-h-a/flags/internal/server/clients/file/gitlab"
 	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
 	s3file "github.com/w-h-a/flags/internal/server/clients/file/s3"
 	"github.com/w-h-a/flags/internal/server/clients/message"
@@ -211,7 +212,13 @@ func initFileClient() file.Client {
 		return github.NewFileClient(
 			file.WithDir(config.FileClientDir()),
 			file.WithFiles(config.FileClientFiles()...),
-			github.WithGithubToken(config.FileClientToken()),
+			file.WithToken(config.FileClientToken()),
+		)
+	case "gitlab":
+		return gitlab.NewFileClient(
+			file.WithDir(config.FileClientDir()),
+			file.WithFiles(config.FileClientFiles()...),
+			file.WithToken(config.FileClientToken()),
 		)
 	case "s3":
 		return s3file.NewFileClient(
