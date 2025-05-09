@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/export"
 )
@@ -36,16 +37,18 @@ func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event := export.Event{
-		CreationDate: time.Now().Unix(),
-		Key:          flagState.Key,
-		Value:        flagState.Value,
-		Variant:      flagState.Variant,
-		Reason:       flagState.Reason,
-		ErrorCode:    flagState.ErrorCode,
-	}
+	if config.CreateReports() {
+		event := export.Event{
+			CreationDate: time.Now().Unix(),
+			Key:          flagState.Key,
+			Value:        flagState.Value,
+			Variant:      flagState.Variant,
+			Reason:       flagState.Reason,
+			ErrorCode:    flagState.ErrorCode,
+		}
 
-	f.exportService.Add(event)
+		f.exportService.Add(event)
+	}
 
 	bs, err := json.Marshal(flagState)
 	if err != nil {
