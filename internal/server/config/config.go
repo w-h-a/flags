@@ -23,6 +23,7 @@ type config struct {
 	fileClientDir   string
 	fileClientFiles []string
 	fileClientToken string
+	createReports   bool
 	reportClient    string
 	reportClientDir string
 	messageClient   string
@@ -42,6 +43,7 @@ func New() {
 			fileClientDir:   ".",
 			fileClientFiles: []string{"/flags.yaml"},
 			fileClientToken: "",
+			createReports:   false,
 			reportClient:    "local",
 			reportClientDir: "/tmp",
 			messageClient:   "local",
@@ -102,14 +104,21 @@ func New() {
 			instance.fileClientToken = fileClientToken
 		}
 
-		reportClient := os.Getenv("REPORT_CLIENT")
-		if len(reportClient) > 0 {
-			instance.reportClient = reportClient
-		}
+		createReports := os.Getenv("CREATE_REPORTS")
+		if len(createReports) > 0 {
+			if createReports == "true" {
+				instance.createReports = true
 
-		reportClientDir := os.Getenv("REPORT_CLIENT_DIR")
-		if len(reportClientDir) > 0 {
-			instance.reportClientDir = reportClientDir
+				reportClient := os.Getenv("REPORT_CLIENT")
+				if len(reportClient) > 0 {
+					instance.reportClient = reportClient
+				}
+
+				reportClientDir := os.Getenv("REPORT_CLIENT_DIR")
+				if len(reportClientDir) > 0 {
+					instance.reportClientDir = reportClientDir
+				}
+			}
 		}
 
 		messageClient := os.Getenv("MESSAGE_CLIENT")
@@ -207,6 +216,14 @@ func FileClientToken() string {
 	return instance.fileClientToken
 }
 
+func CreateReports() bool {
+	if instance == nil {
+		return false
+	}
+
+	return instance.createReports
+}
+
 func ReportClient() string {
 	if instance == nil {
 		return ""
@@ -245,6 +262,7 @@ func Reset() {
 		fileClientDir:   ".",
 		fileClientFiles: []string{"/flags.yaml"},
 		fileClientToken: "",
+		createReports:   false,
 		reportClient:    "local",
 		reportClientDir: "/tmp",
 		messageClient:   "local",
