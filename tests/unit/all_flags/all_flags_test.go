@@ -22,6 +22,7 @@ import (
 )
 
 const (
+	tok   = "mytoken"
 	dir   = "../testdata"
 	files = "/flags.yaml"
 )
@@ -48,6 +49,7 @@ func TestAllFlags(t *testing.T) {
 
 	for _, test := range tests {
 		// env vars
+		os.Setenv("API_KEYS", tok)
 		os.Setenv("FILE_CLIENT_DIR", dir)
 		os.Setenv("FILE_CLIENT_FILES", files)
 
@@ -95,11 +97,19 @@ func TestAllFlags(t *testing.T) {
 			err = httpServer.Run()
 			require.NoError(t, err)
 
-			rsp, err := http.Post(
+			req, err := http.NewRequest(
+				"POST",
 				fmt.Sprintf("http://%s%s", httpServer.Options().Address, "/ofrep/v1/evaluate/flags"),
-				"application/json",
 				strings.NewReader(""),
 			)
+			require.NoError(t, err)
+
+			req.Header.Set("content-type", "application/json")
+			req.Header.Set("authorization", fmt.Sprintf("Bearer %s", tok))
+
+			client := &http.Client{}
+
+			rsp, err := client.Do(req)
 			require.NoError(t, err)
 
 			want, err := os.ReadFile(test.want.bodyFile)

@@ -16,6 +16,7 @@ type config struct {
 	name            string
 	version         string
 	httpAddress     string
+	apiKeys         map[string]bool
 	tracesAddress   string
 	metricsAddress  string
 	flagFormat      string
@@ -36,6 +37,7 @@ func New() {
 			name:            "flags",
 			version:         "0.1.0-alpha.0",
 			httpAddress:     ":0",
+			apiKeys:         map[string]bool{},
 			tracesAddress:   "localhost:4318",
 			metricsAddress:  "localhost:4318",
 			flagFormat:      "yaml",
@@ -67,6 +69,14 @@ func New() {
 		httpAddress := os.Getenv("HTTP_ADDRESS")
 		if len(httpAddress) > 0 {
 			instance.httpAddress = httpAddress
+		}
+
+		apiKeys := os.Getenv("API_KEYS")
+		if len(apiKeys) > 0 {
+			keys := strings.Split(apiKeys, ",")
+			for _, k := range keys {
+				instance.apiKeys[k] = true
+			}
 		}
 
 		tracesAddress := os.Getenv("TRACES_ADDRESS")
@@ -158,6 +168,15 @@ func HttpAddress() string {
 	}
 
 	return instance.httpAddress
+}
+
+func CheckAPIKey(key string) bool {
+	if instance == nil {
+		return false
+	}
+
+	_, ok := instance.apiKeys[key]
+	return ok
 }
 
 func TracesAddress() string {
@@ -255,6 +274,7 @@ func Reset() {
 		name:            "flags",
 		version:         "0.1.0-alpha.0",
 		httpAddress:     ":0",
+		apiKeys:         map[string]bool{},
 		tracesAddress:   "localhost:4318",
 		metricsAddress:  "localhost:4318",
 		flagFormat:      "yaml",

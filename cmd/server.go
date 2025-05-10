@@ -207,7 +207,7 @@ func updateCache(cacheService *cache.Service, notifyService *notify.Service, sto
 	// TODO: confirm poll interval is valid
 
 	// TODO: retrieve from config
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(2 * time.Minute)
 
 	for {
 		select {
@@ -230,7 +230,7 @@ func exportReports(exportService *export.Service, stop chan struct{}) error {
 	// TODO: confirm
 
 	// TODO: retrieve from config
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(2 * time.Minute)
 
 	for {
 		select {
