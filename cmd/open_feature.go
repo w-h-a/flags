@@ -22,6 +22,7 @@ func OpenFeature(ctx *cli.Context) error {
 	v, err := openfeature.Factory(
 		ctx.String("host"),
 		ctx.Int("port"),
+		ctx.String("apiKey"),
 		ctx.String("flag"),
 		"name",
 	)

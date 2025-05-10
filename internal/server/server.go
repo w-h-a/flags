@@ -56,6 +56,7 @@ func Factory(
 
 	httpOpts := []serverv2.ServerOption{
 		serverv2.ServerWithAddress(config.HttpAddress()),
+		httpserver.HttpServerWithMiddleware(httphandlers.NewAuthMiddleware()),
 	}
 
 	httpOpts = append(httpOpts, opts...)

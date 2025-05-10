@@ -36,6 +36,11 @@ func main() {
 						Required: true,
 					},
 					&cli.StringFlag{
+						Name:     "apiKey",
+						Usage:    "Provide the api key for the server",
+						Required: true,
+					},
+					&cli.StringFlag{
 						Name:     "flag",
 						Usage:    "Provide the flag key",
 						Required: true,

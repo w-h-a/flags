@@ -8,9 +8,16 @@ import (
 	of "github.com/open-feature/go-sdk/openfeature"
 )
 
-func Factory(host string, port int, flagKey, name string) (any, error) {
+func Factory(
+	host string,
+	port int,
+	apiKey string,
+	flagKey string,
+	name string,
+) (any, error) {
 	provider := ofrep.NewProvider(
 		fmt.Sprintf("http://%s:%d", host, port),
+		ofrep.WithBearerToken(apiKey),
 	)
 
 	if err := of.SetProviderAndWait(provider); err != nil {
