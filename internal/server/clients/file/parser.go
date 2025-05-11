@@ -28,19 +28,19 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 	}
 
 	for _, flag := range flags {
-		// corrective actions
+		// add the default
 		flag.DefaultRule = &Rule{
-			Name:      "default",
-			Variation: "default",
+			Name:    "default",
+			Variant: "default",
 		}
 
 		// requirements
-		if len(flag.Variations) == 0 {
-			return nil, fmt.Errorf("flag missing variations")
+		if len(flag.Variants) == 0 {
+			return nil, fmt.Errorf("flag missing variants")
 		}
 
-		if _, ok := flag.Variations["default"]; !ok {
-			return nil, fmt.Errorf("flag's variations missing default value")
+		if _, ok := flag.Variants["default"]; !ok {
+			return nil, fmt.Errorf("flag missing default variant")
 		}
 
 		ruleNames := map[string]any{}
@@ -61,7 +61,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 		var variantType string
 		var err error
 
-		for _, variant := range flag.Variations {
+		for _, variant := range flag.Variants {
 			var currentType string
 
 			if len(variantType) > 0 {
@@ -70,7 +70,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 					return nil, err
 				}
 				if currentType != variantType {
-					return nil, fmt.Errorf("variants have different types")
+					return nil, fmt.Errorf("discovered flag variants with different types")
 				}
 			} else {
 				variantType, err = p.extractVariantType(variant)
@@ -89,8 +89,8 @@ func (p *Parser) ParseRule(rule *Rule) error {
 		return fmt.Errorf("rule missing name")
 	}
 
-	if len(rule.Variation) == 0 {
-		return fmt.Errorf("rule missing variation")
+	if len(rule.Variant) == 0 {
+		return fmt.Errorf("rule missing variant")
 	}
 
 	return nil

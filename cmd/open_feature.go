@@ -9,7 +9,6 @@ import (
 )
 
 func OpenFeature(ctx *cli.Context) error {
-	// log
 	logBuffer := memoryutils.NewBuffer()
 
 	logger := memorylog.NewLog(

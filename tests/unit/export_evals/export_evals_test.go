@@ -1,6 +1,7 @@
 package exportevals
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -14,6 +15,11 @@ import (
 )
 
 func TestExportEvals_FlushWithTime(t *testing.T) {
+	if len(os.Getenv("INTEGRATION")) > 0 {
+		t.Log("SKIPPING UNIT TEST")
+		return
+	}
+
 	setLogger()
 
 	reportClient := mock.NewReportClient(
@@ -64,6 +70,11 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 }
 
 func TestExportEvals_FlushWithClose(t *testing.T) {
+	if len(os.Getenv("INTEGRATION")) > 0 {
+		t.Log("SKIPPING UNIT TEST")
+		return
+	}
+
 	setLogger()
 
 	reportClient := mock.NewReportClient(

@@ -1,17 +1,17 @@
 package file
 
 const (
-	ReasonDisabled  string = "DISABLED"
-	ReasonRuleMatch string = "TARGETING_MATCH"
-	ReasonDefault   string = "DEFAULT"
+	ReasonDisabled       string = "DISABLED"
+	ReasonDefault        string = "DEFAULT"
+	ReasonTargetingMatch string = "TARGETING_MATCH"
 
 	ErrorNotFound string = "FLAG_NOT_FOUND"
 )
 
 type Flag struct {
-	Disabled   *bool           `json:"disabled" yaml:"disabled"`
-	Variations map[string]*any `json:"variations" yaml:"variations"`
-	Rules      []*Rule         `json:"rules" yaml:"rules"`
+	Disabled *bool           `json:"disabled" yaml:"disabled"`
+	Variants map[string]*any `json:"variants" yaml:"variants"`
+	Rules    []*Rule         `json:"rules" yaml:"rules"`
 
 	DefaultRule *Rule
 }
@@ -31,7 +31,7 @@ func (f *Flag) Evaluate() (any, ResolutionDetails) {
 
 			resolutionDetails := ResolutionDetails{
 				Variant:   variant,
-				Reason:    ReasonRuleMatch,
+				Reason:    ReasonTargetingMatch,
 				RuleIndex: i,
 				RuleName:  rule.Name,
 			}
@@ -49,14 +49,14 @@ func (f *Flag) Evaluate() (any, ResolutionDetails) {
 
 func (f *Flag) IsDisabled() bool {
 	if f.Disabled == nil {
-		return false
+		return true
 	}
 
 	return *f.Disabled
 }
 
 func (f *Flag) value(name string) any {
-	for k, v := range f.Variations {
+	for k, v := range f.Variants {
 		if k == name && v != nil {
 			return *v
 		}
@@ -66,12 +66,12 @@ func (f *Flag) value(name string) any {
 }
 
 type Rule struct {
-	Name      string `json:"name" yaml:"name"`
-	Variation string `json:"variation" yaml:"variation"`
+	Name    string `json:"name" yaml:"name"`
+	Variant string `json:"variant" yaml:"variant"`
 }
 
 func (r *Rule) Evaluate(_ bool) string {
-	return r.Variation
+	return r.Variant
 }
 
 type ResolutionDetails struct {

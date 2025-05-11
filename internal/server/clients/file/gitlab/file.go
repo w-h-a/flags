@@ -25,7 +25,7 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/files/%s", c.options.Dir, file),
+		fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/files/%s/raw?ref=main", c.options.Dir, file),
 		strings.NewReader(""),
 	)
 	if err != nil {

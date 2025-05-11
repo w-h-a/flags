@@ -289,7 +289,9 @@ func initReportClient() report.Client {
 func initMessageClient() message.Client {
 	switch config.MessageClient() {
 	case "slack":
-		return slack.NewMessageClient()
+		return slack.NewMessageClient(
+			message.WithURL(config.MessageURL()),
+		)
 	default:
 		return localmessage.NewMessageClient()
 	}

@@ -1,33 +1,38 @@
 allow-access:
   disabled: false
-  variations:
+  variants:
     "true": true
     "false": false
     "default": false
   rules:
     - name: rule1
-      variation: "false"
+      variant: "false"
 
 disabled-flag:
   disabled: true
-  variations:
+  variants:
     "true": true
     "false": false
     "default": false
   rules:
     - name: rule1
-      variation: "true"
+      variant: "true"
 
 number-flag:
   disabled: false
-  variations:
+  variants:
     "true": 2
     "false": 3
     "default": 1
   rules:
     - name: rule1
-      variation: "true"
+      variant: "true"
 
 bare-minimum-flag:
-  variations:
+  disabled: false
+  variants:
     "default": "hello, world"
+
+bare-minimum-flag-2:
+  variants:
+    "default": "hello, again"

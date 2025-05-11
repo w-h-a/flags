@@ -28,6 +28,11 @@ const (
 )
 
 func TestAllFlags(t *testing.T) {
+	if len(os.Getenv("INTEGRATION")) > 0 {
+		t.Log("SKIPPING UNIT TEST")
+		return
+	}
+
 	// TODO: add tests when we read the req body
 	type want struct {
 		httpCode int
@@ -98,7 +103,7 @@ func TestAllFlags(t *testing.T) {
 			require.NoError(t, err)
 
 			req, err := http.NewRequest(
-				"POST",
+				http.MethodPost,
 				fmt.Sprintf("http://%s%s", httpServer.Options().Address, "/ofrep/v1/evaluate/flags"),
 				strings.NewReader(""),
 			)

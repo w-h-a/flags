@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"errors"
+	"fmt"
 	"maps"
 	"sort"
 	"sync"
@@ -32,8 +33,9 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 
 	if !ok {
 		result := FlagState{
-			Key:       flagKey,
-			ErrorCode: file.ErrorNotFound,
+			Key:          flagKey,
+			ErrorCode:    file.ErrorNotFound,
+			ErrorMessage: fmt.Sprintf("flag for key '%s' does not exist", flagKey),
 		}
 
 		return result, ErrNotFound
