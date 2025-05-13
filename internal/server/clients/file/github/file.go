@@ -25,15 +25,17 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("https://raw.githubusercontent.com/%s/main/%s?ref=main", c.options.Dir, file),
+		fmt.Sprintf("https://api.github.com/repos/%s/contents/%s?ref=main", c.options.Dir, file),
 		strings.NewReader(""),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
+	req.Header.Add("accept", "application/vnd.github.raw")
+
 	if len(c.options.Token) > 0 {
-		req.Header.Add("authorization", fmt.Sprintf("token %s", c.options.Token))
+		req.Header.Add("authorization", fmt.Sprintf("Bearer %s", c.options.Token))
 	}
 
 	rsp, err := c.httpClient.Do(req)
