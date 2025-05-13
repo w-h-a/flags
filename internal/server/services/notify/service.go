@@ -26,7 +26,9 @@ func (s *Service) Notify(old, new map[string]*file.Flag) {
 		s.waitGroup.Add(1)
 
 		go func() {
-			err := n.Send(context.TODO(), diff, s.waitGroup)
+			defer s.waitGroup.Done()
+
+			err := n.Send(context.TODO(), diff)
 			if err != nil {
 				log.Errorf("notify service failed to send message: %v", err)
 			}

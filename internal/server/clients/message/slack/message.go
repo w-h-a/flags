@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gdexlab/go-render/render"
@@ -27,9 +26,7 @@ type client struct {
 	httpClient *http.Client
 }
 
-func (c *client) Send(ctx context.Context, diff message.Diff, wg *sync.WaitGroup) error {
-	defer wg.Done()
-
+func (c *client) Send(ctx context.Context, diff message.Diff) error {
 	msg := c.convert(diff)
 
 	bs, err := json.Marshal(msg)
