@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {

@@ -108,7 +108,7 @@ func New() {
 
 		fileClientFiles := os.Getenv("FILE_CLIENT_FILES")
 		if len(fileClientFiles) > 0 {
-			instance.fileClientFiles = append(instance.fileClientFiles, strings.Split(fileClientFiles, ",")...)
+			instance.fileClientFiles = strings.Split(fileClientFiles, ",")
 		}
 
 		fileClientToken := os.Getenv("FILE_CLIENT_TOKEN")

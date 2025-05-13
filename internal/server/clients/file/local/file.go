@@ -2,10 +2,10 @@ package local
 
 import (
 	"context"
-	"log"
 	"os"
 
 	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
