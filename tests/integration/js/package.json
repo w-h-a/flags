@@ -1,0 +1,19 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openfeature/server-sdk": "~1.18.0",
+    "@openfeature/js-sdk": "~1.6.1",
+    "@openfeature/ofrep-provider": "~0.2.1"
+  },
+  "devDependencies": {
+    "jest": "~29.7.0"
+  }
+}

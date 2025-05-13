@@ -28,6 +28,11 @@ const (
 )
 
 func TestFlagEval(t *testing.T) {
+	if len(os.Getenv("INTEGRATION")) > 0 {
+		t.Log("SKIPPING UNIT TEST")
+		return
+	}
+
 	// TODO: add tests when we read the req body
 	type args struct {
 		flagKey string
@@ -51,6 +56,16 @@ func TestFlagEval(t *testing.T) {
 			want: want{
 				httpCode: http.StatusOK,
 				bodyFile: "../testdata/flag_eval/bare_minimum_response.json",
+			},
+		},
+		{
+			name: "bare-minimum-flag-2",
+			args: args{
+				flagKey: "bare-minimum-flag-2",
+			},
+			want: want{
+				httpCode: http.StatusOK,
+				bodyFile: "../testdata/flag_eval/bare_minimum_response_2.json",
 			},
 		},
 		{
@@ -80,7 +95,7 @@ func TestFlagEval(t *testing.T) {
 			},
 			want: want{
 				httpCode: http.StatusNotFound,
-				bodyFile: "../testdata/flag_eval/flag_not_found_response.txt",
+				bodyFile: "../testdata/flag_eval/flag_not_found_response.json",
 			},
 		},
 	}
@@ -136,7 +151,7 @@ func TestFlagEval(t *testing.T) {
 			require.NoError(t, err)
 
 			req, err := http.NewRequest(
-				"POST",
+				http.MethodPost,
 				fmt.Sprintf("http://%s%s%s", httpServer.Options().Address, "/ofrep/v1/evaluate/flags/", test.args.flagKey),
 				strings.NewReader(""),
 			)

@@ -39,7 +39,7 @@ func (c *client) Send(ctx context.Context, diff message.Diff, wg *sync.WaitGroup
 
 	req, err := http.NewRequestWithContext(
 		ctx,
-		http.MethodGet,
+		http.MethodPost,
 		c.options.URL,
 		bytes.NewReader(bs),
 	)

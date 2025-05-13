@@ -28,6 +28,7 @@ type config struct {
 	reportClient    string
 	reportClientDir string
 	messageClient   string
+	messageURL      string
 }
 
 func New() {
@@ -49,6 +50,7 @@ func New() {
 			reportClient:    "local",
 			reportClientDir: "/tmp",
 			messageClient:   "local",
+			messageURL:      "",
 		}
 
 		env := os.Getenv("ENV")
@@ -134,6 +136,11 @@ func New() {
 		messageClient := os.Getenv("MESSAGE_CLIENT")
 		if len(messageClient) > 0 {
 			instance.messageClient = messageClient
+		}
+
+		messageURL := os.Getenv("MESSAGE_URL")
+		if len(messageURL) > 0 {
+			instance.messageURL = messageURL
 		}
 	})
 }
@@ -267,6 +274,14 @@ func MessageClient() string {
 	return instance.messageClient
 }
 
+func MessageURL() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.messageURL
+}
+
 // used for test purposes only
 func Reset() {
 	instance = &config{
@@ -286,6 +301,7 @@ func Reset() {
 		reportClient:    "local",
 		reportClientDir: "/tmp",
 		messageClient:   "local",
+		messageURL:      "",
 	}
 
 	once = sync.Once{}

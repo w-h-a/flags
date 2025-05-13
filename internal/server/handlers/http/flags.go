@@ -28,8 +28,15 @@ func (f *Flags) PostOne(w http.ResponseWriter, r *http.Request) {
 
 	flagState, err := f.cacheService.Flag(flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
+		bs, err := json.Marshal(flagState)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "error: %v", err)
+			return
+		}
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "error: %s %v", flagKey, err)
+		fmt.Fprint(w, string(bs))
 		return
 	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
