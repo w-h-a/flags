@@ -2,7 +2,6 @@ package local
 
 import (
 	"context"
-	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/message"
 	"github.com/w-h-a/pkg/telemetry/log"
@@ -12,9 +11,7 @@ type client struct {
 	options message.Options
 }
 
-func (c *client) Send(ctx context.Context, diff message.Diff, wg *sync.WaitGroup) error {
-	defer wg.Done()
-
+func (c *client) Send(ctx context.Context, diff message.Diff) error {
 	for k := range diff.Deleted {
 		log.Infof("flag %v removed", k)
 	}
