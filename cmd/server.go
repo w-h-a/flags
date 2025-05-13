@@ -5,20 +5,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/urfave/cli/v2"
 	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	"github.com/w-h-a/flags/internal/server/clients/file/github"
 	"github.com/w-h-a/flags/internal/server/clients/file/gitlab"
 	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
-	s3file "github.com/w-h-a/flags/internal/server/clients/file/s3"
 	"github.com/w-h-a/flags/internal/server/clients/message"
 	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
 	"github.com/w-h-a/flags/internal/server/clients/message/slack"
 	"github.com/w-h-a/flags/internal/server/clients/report"
 	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
-	s3report "github.com/w-h-a/flags/internal/server/clients/report/s3"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/export"
@@ -258,12 +255,6 @@ func initFileClient() file.Client {
 			file.WithFiles(config.FileClientFiles()...),
 			file.WithToken(config.FileClientToken()),
 		)
-	case "s3":
-		return s3file.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
-			s3file.WithAWSConfig(aws.Config{}),
-		)
 	default:
 		return localfile.NewFileClient(
 			file.WithDir(config.FileClientDir()),
@@ -274,11 +265,6 @@ func initFileClient() file.Client {
 
 func initReportClient() report.Client {
 	switch config.ReportClient() {
-	case "s3":
-		return s3report.NewReportClient(
-			report.WithDir(config.ReportClientDir()),
-			s3report.WithAWSConfig(aws.Config{}),
-		)
 	default:
 		return localreport.NewReportClient(
 			report.WithDir(config.ReportClientDir()),
