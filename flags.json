@@ -1,0 +1,16 @@
+{
+    "show-it": {
+        "disabled": true,
+        "variants": {
+            "default": false,
+            "disabled": false,
+            "enabled": true
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "enabled"
+            }
+        ]
+    }
+}

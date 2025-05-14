@@ -200,7 +200,11 @@ func Server(ctx *cli.Context) error {
 	return nil
 }
 
-func updateCache(cacheService *cache.Service, notifyService *notify.Service, stop chan struct{}) error {
+func updateCache(
+	cacheService *cache.Service,
+	notifyService *notify.Service,
+	stop chan struct{},
+) error {
 	// TODO: confirm poll interval is valid
 
 	// TODO: retrieve from config
@@ -223,7 +227,10 @@ func updateCache(cacheService *cache.Service, notifyService *notify.Service, sto
 	}
 }
 
-func exportReports(exportService *export.Service, stop chan struct{}) error {
+func exportReports(
+	exportService *export.Service,
+	stop chan struct{},
+) error {
 	// TODO: confirm
 
 	// TODO: retrieve from config
