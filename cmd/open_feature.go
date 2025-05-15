@@ -23,6 +23,7 @@ func OpenFeature(ctx *cli.Context) error {
 		ctx.Int("port"),
 		ctx.String("apiKey"),
 		ctx.String("flag"),
+		ctx.String("flagType"),
 		"name",
 	)
 	if err != nil {

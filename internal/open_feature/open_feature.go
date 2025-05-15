@@ -13,6 +13,7 @@ func Factory(
 	port int,
 	apiKey string,
 	flagKey string,
+	flagType string,
 	name string,
 ) (any, error) {
 	provider := ofrep.NewProvider(
@@ -31,7 +32,19 @@ func Factory(
 		map[string]any{},
 	)
 
-	v, err := client.BooleanValue(context.TODO(), flagKey, false, evaluationCtx)
+	var v any
+	var err error
+
+	switch flagType {
+	case "int":
+		v, err = client.IntValue(context.TODO(), flagKey, 0, evaluationCtx)
+	case "float64":
+		v, err = client.FloatValue(context.TODO(), flagKey, 0.0, evaluationCtx)
+	case "string":
+		v, err = client.StringValue(context.TODO(), flagKey, "", evaluationCtx)
+	default:
+		v, err = client.BooleanValue(context.TODO(), flagKey, false, evaluationCtx)
+	}
 
 	return v, err
 }

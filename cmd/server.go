@@ -86,7 +86,12 @@ func Server(ctx *cli.Context) error {
 	)
 
 	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.TraceContext{})
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		),
+	)
 	defer func() {
 		if err := tp.Shutdown(instCtx); err != nil {
 			log.Warnf("failed to gracefully shutdown trace provider: %v", err)
