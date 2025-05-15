@@ -1,0 +1,123 @@
+{
+    "disabled_bool": {
+        "variants": {
+            "default": false
+        }
+    },
+    "disabled_float": {
+        "variants": {
+            "default": 100.25
+        }
+    },
+    "disabled_int": {
+        "variants": {
+            "default": 100
+        }
+    },
+    "disabled_string": {
+        "variants": {
+            "default": "asdf"
+        }
+    },
+    "disabled_bool_2": {
+        "disabled": true,
+        "variants": {
+            "default": false
+        }
+    },
+    "disabled_float_2": {
+        "disabled": true,
+        "variants": {
+            "default": 100.25
+        }
+    },
+    "disabled_int_2": {
+        "disabled": true,
+        "variants": {
+            "default": 100
+        }
+    },
+    "disabled_string_2": {
+        "disabled": true,
+        "variants": {
+            "default": "asdf"
+        }
+    },
+    "default_bool": {
+        "disabled": false,
+        "variants": {
+            "default": false
+        }
+    },
+    "default_float": {
+        "disabled": false,
+        "variants": {
+            "default": 100.25
+        }
+    },
+    "default_int": {
+        "disabled": false,
+        "variants": {
+            "default": 100
+        }
+    },
+    "default_string": {
+        "disabled": false,
+        "variants": {
+            "default": "asdf"
+        }
+    },
+    "bool_targeting_match": {
+        "disabled": false,
+        "variants": {
+            "default": false,
+            "false": false,
+            "true": true
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    },
+    "float_targeting_match": {
+        "disabled": false,
+        "variants": {
+            "default": 100.25,
+            "true": 101.25
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    },
+    "int_targeting_match": {
+        "disabled": false,
+        "variants": {
+            "default": 100,
+            "true": 101
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    },
+    "string_targeting_match": {
+        "disabled": false,
+        "variants": {
+            "default": "asdf",
+            "true": "fdsa"
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    }
+}

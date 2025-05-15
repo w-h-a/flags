@@ -9,9 +9,7 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/report"
 	"github.com/w-h-a/flags/internal/server/clients/report/mock"
 	"github.com/w-h-a/flags/internal/server/services/export"
-	"github.com/w-h-a/pkg/telemetry/log"
-	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
-	"github.com/w-h-a/pkg/utils/memoryutils"
+	"github.com/w-h-a/flags/tests/unit"
 )
 
 func TestExportEvals_FlushWithTime(t *testing.T) {
@@ -20,7 +18,7 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 		return
 	}
 
-	setLogger()
+	unit.SetLogger()
 
 	reportClient := mock.NewReportClient(
 		report.WithDir("any"),
@@ -75,7 +73,7 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 		return
 	}
 
-	setLogger()
+	unit.SetLogger()
 
 	reportClient := mock.NewReportClient(
 		report.WithDir("any"),
@@ -130,7 +128,11 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 	}
 }
 
-func exportReports(exportService *export.Service, stop chan struct{}, dur time.Duration) error {
+func exportReports(
+	exportService *export.Service,
+	stop chan struct{},
+	dur time.Duration,
+) error {
 	ticker := time.NewTicker(dur)
 
 	for {
@@ -143,15 +145,4 @@ func exportReports(exportService *export.Service, stop chan struct{}, dur time.D
 			return nil
 		}
 	}
-}
-
-func setLogger() {
-	logBuffer := memoryutils.NewBuffer()
-
-	logger := memorylog.NewLog(
-		log.LogWithPrefix("export"),
-		memorylog.LogWithBuffer(logBuffer),
-	)
-
-	log.SetLogger(logger)
 }
