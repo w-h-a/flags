@@ -12,5 +12,31 @@
                 "variant": "enabled"
             }
         ]
+    },
+    "number-me": {
+        "disabled": false,
+        "variants": {
+            "default": 0,
+            "new": 100
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "new"
+            }
+        ]
+    },
+    "talk": {
+        "disabled": false,
+        "variants": {
+            "default": "",
+            "new": "hello, world"
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "new"
+            }
+        ]
     }
 }

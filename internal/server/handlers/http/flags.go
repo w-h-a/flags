@@ -84,7 +84,10 @@ func (f *Flags) PostAll(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(bs))
 }
 
-func NewFlagsHandler(cacheService *cache.Service, exportService *export.Service) *Flags {
+func NewFlagsHandler(
+	cacheService *cache.Service,
+	exportService *export.Service,
+) *Flags {
 	return &Flags{
 		cacheService:  cacheService,
 		exportService: exportService,

@@ -1,8 +1,9 @@
 package cache
 
 type AllFlags struct {
-	Flags     []FlagState `json:"flags"`
-	ErrorCode string      `json:"errorCode,omitempty"`
+	Flags        []FlagState `json:"flags"`
+	ErrorCode    string      `json:"errorCode,omitempty"`
+	ErrorMessage string      `json:"errorMessage,omitempty"`
 }
 
 func (a *AllFlags) AddFlag(state FlagState) {

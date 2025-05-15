@@ -45,6 +45,11 @@ func main() {
 						Usage:    "Provide the flag key",
 						Required: true,
 					},
+					&cli.StringFlag{
+						Name:     "flagType",
+						Usage:    "Provide the flag type (i.e., bool, int, float64, string)",
+						Required: true,
+					},
 				},
 			},
 		},

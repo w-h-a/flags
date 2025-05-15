@@ -1,0 +1,17 @@
+{
+  "name": "service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openfeature/server-sdk": "~1.18.0",
+    "@openfeature/js-sdk": "~1.6.1",
+    "@openfeature/ofrep-provider": "~0.2.1"
+  }
+}

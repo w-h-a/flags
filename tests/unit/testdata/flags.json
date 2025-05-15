@@ -1,0 +1,55 @@
+{
+    "allow-access": {
+        "disabled": false,
+        "variants": {
+            "true": true,
+            "false": false,
+            "default": false
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "false"
+            }
+        ]
+    },
+    "disabled-flag": {
+        "disabled": true,
+        "variants": {
+            "true": true,
+            "false": false,
+            "default": false
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    },
+    "number-flag": {
+        "disabled": false,
+        "variants": {
+            "true": 2,
+            "false": 3,
+            "default": 1
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    },
+    "bare-minimum-flag": {
+        "disabled": false,
+        "variants": {
+            "default": "hello, world"
+        }
+    },
+    "bare-minimum-flag-2": {
+        "variants": {
+            "default": "hello, again"
+        }
+    }
+}
