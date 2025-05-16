@@ -5,6 +5,19 @@ services:
     ports:
       - '16686:16686'
 
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v3.0.0
+    command: 
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--web.enable-otlp-receiver"
+      - "--web.enable-remote-write-receiver"
+      - "--enable-feature=remote-write-receiver"
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+
   flags:
     container_name: flags
     image: wesha/flags:1.6.0
@@ -16,16 +29,17 @@ services:
       - HTTP_ADDRESS=:4000
       - API_KEYS=myflagstoken
       - TRACES_ADDRESS=jaeger:4318
+      - METRICS_ADDRESS=prometheus:9090
+      - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/otlp/v1/metrics
       - FLAG_FORMAT=json
       - FILE_CLIENT=local
       - FILE_CLIENT_DIR=/nodejs
       - FILE_CLIENT_FILES=/flags.json
     volumes:
-      - type: bind
-        source: ./
-        target: /nodejs/
+      - ./flags.json:/nodejs/flags.json
     depends_on:
       - jaeger
+      - prometheus
 
   nodejs:
     container_name: nodejs
