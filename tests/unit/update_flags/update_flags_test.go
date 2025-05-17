@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	mockfile "github.com/w-h-a/flags/internal/server/clients/file/mock"
 	mockmessage "github.com/w-h-a/flags/internal/server/clients/message/mock"
@@ -26,12 +27,12 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 		file.WithDir("any"),
 		file.WithFiles("any"),
 		mockfile.WithInitialFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"hello": {},
 			},
 		),
 		mockfile.WithUpdatedFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"hello": {},
 			},
 		),
@@ -90,14 +91,14 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 		file.WithDir("any"),
 		file.WithFiles("any"),
 		mockfile.WithInitialFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(true),
 				},
 			},
 		),
 		mockfile.WithUpdatedFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
 				},
@@ -159,10 +160,10 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 		file.WithDir("any"),
 		file.WithFiles("any"),
 		mockfile.WithInitialFlags(
-			map[string]*file.Flag{},
+			map[string]*flags.Flag{},
 		),
 		mockfile.WithUpdatedFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
 				},
@@ -224,7 +225,7 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 		file.WithDir("any"),
 		file.WithFiles("any"),
 		mockfile.WithInitialFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
 				},
@@ -232,7 +233,7 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 			},
 		),
 		mockfile.WithUpdatedFlags(
-			map[string]*file.Flag{
+			map[string]*flags.Flag{
 				"flag2": {},
 			},
 		),

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 )
 
@@ -18,13 +19,13 @@ var (
 
 type Service struct {
 	fileClient file.Client
-	store      map[string]*file.Flag
+	store      map[string]*flags.Flag
 	lastUpdate time.Time
 	mtx        sync.RWMutex
 }
 
 func (s *Service) Flag(flagKey string) (FlagState, error) {
-	var flag *file.Flag
+	var flag *flags.Flag
 	var ok bool
 
 	s.mtx.RLock()
@@ -34,7 +35,7 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 	if !ok {
 		result := FlagState{
 			Key:          flagKey,
-			ErrorCode:    file.ErrorNotFound,
+			ErrorCode:    flags.ErrorNotFound,
 			ErrorMessage: fmt.Sprintf("flag for key '%s' does not exist", flagKey),
 		}
 
@@ -54,7 +55,7 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 }
 
 func (s *Service) Flags() AllFlags {
-	flags := map[string]*file.Flag{}
+	flags := map[string]*flags.Flag{}
 
 	s.mtx.RLock()
 	maps.Copy(flags, s.store)
@@ -80,21 +81,21 @@ func (s *Service) Flags() AllFlags {
 	return allFlags
 }
 
-func (s *Service) RetrieveFlags() (map[string]*file.Flag, map[string]*file.Flag, error) {
-	flags, err := s.fileClient.Read(context.TODO())
+func (s *Service) RetrieveFlags() (map[string]*flags.Flag, map[string]*flags.Flag, error) {
+	new, err := s.fileClient.Read(context.TODO())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var old map[string]*file.Flag
+	var old map[string]*flags.Flag
 
 	s.mtx.Lock()
 	old = s.store
-	s.store = flags
+	s.store = new
 	s.lastUpdate = time.Now()
 	s.mtx.Unlock()
 
-	return old, flags, nil
+	return old, new, nil
 }
 
 func (s *Service) LastUpdate() time.Time {
@@ -106,7 +107,7 @@ func (s *Service) LastUpdate() time.Time {
 func New(fileClient file.Client) *Service {
 	return &Service{
 		fileClient: fileClient,
-		store:      map[string]*file.Flag{},
+		store:      map[string]*flags.Flag{},
 		mtx:        sync.RWMutex{},
 	}
 }

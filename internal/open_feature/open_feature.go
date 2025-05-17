@@ -11,13 +11,22 @@ import (
 func Factory(
 	host string,
 	port int,
+	insecure bool,
 	apiKey string,
 	flagKey string,
 	flagType string,
 	name string,
 ) (any, error) {
+	baseUri := fmt.Sprintf("%s:%d", host, port)
+
+	if insecure {
+		baseUri = "http://" + baseUri
+	} else {
+		baseUri = "https://" + baseUri
+	}
+
 	provider := ofrep.NewProvider(
-		fmt.Sprintf("http://%s:%d", host, port),
+		baseUri,
 		ofrep.WithBearerToken(apiKey),
 	)
 

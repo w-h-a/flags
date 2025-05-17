@@ -1,0 +1,4 @@
+test:
+  variants:
+    default: 0
+    variant2: true

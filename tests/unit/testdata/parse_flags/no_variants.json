@@ -1,0 +1,10 @@
+{
+    "test": {
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true"
+            }
+        ]
+    }
+}
