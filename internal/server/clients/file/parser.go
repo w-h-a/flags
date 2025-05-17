@@ -46,7 +46,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 		ruleNames := map[string]any{}
 
 		for _, rule := range flag.Rules {
-			if err := p.ParseRule(rule); err != nil {
+			if err := p.ParseRule(rule, flag.Variants); err != nil {
 				return nil, err
 			}
 
@@ -84,7 +84,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 	return flags, nil
 }
 
-func (p *Parser) ParseRule(rule *Rule) error {
+func (p *Parser) ParseRule(rule *Rule, variants map[string]*any) error {
 	if len(rule.Name) == 0 {
 		return fmt.Errorf("rule missing name")
 	}
@@ -97,7 +97,10 @@ func (p *Parser) ParseRule(rule *Rule) error {
 		return fmt.Errorf("rule missing variant")
 	}
 
-	// TODO: ensure that flag variants include rule variant
+	// if this thing has percentages, check the variants there instead
+	if _, ok := variants[rule.Variant]; !ok {
+		return fmt.Errorf("rule includes unknown variant")
+	}
 
 	return nil
 }
