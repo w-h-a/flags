@@ -1,9 +1,16 @@
 package file
 
+import (
+	"errors"
+
+	"github.com/w-h-a/pkg/telemetry/log"
+)
+
 const (
 	ReasonDisabled       string = "DISABLED"
 	ReasonDefault        string = "DEFAULT"
 	ReasonTargetingMatch string = "TARGETING_MATCH"
+	ReasonSplit          string = "SPLIT"
 
 	ErrorNotFound string = "FLAG_NOT_FOUND"
 )
@@ -18,29 +25,37 @@ type Flag struct {
 
 func (f *Flag) Evaluate() (any, ResolutionDetails) {
 	if f.IsDisabled() {
-		variant := f.DefaultRule.Evaluate(true)
+		variant, _ := f.DefaultRule.Evaluate()
 
 		resolutionDetails := ResolutionDetails{Variant: variant, Reason: ReasonDisabled}
 
 		return f.value(variant), resolutionDetails
 	}
 
-	if len(f.Rules) > 0 {
-		for i, rule := range f.Rules {
-			variant := rule.Evaluate(false)
-
-			resolutionDetails := ResolutionDetails{
-				Variant:   variant,
-				Reason:    ReasonTargetingMatch,
-				RuleIndex: i,
-				RuleName:  rule.Name,
-			}
-
-			return f.value(variant), resolutionDetails
+	for i, rule := range f.Rules {
+		variant, err := rule.Evaluate()
+		if err != nil && errors.Is(err, ErrRuleDoesNotApply) {
+			continue
+		} else if err != nil {
+			log.Errorf("unexpected error during rule evaluation: %v", err)
+			continue
 		}
+
+		resolutionDetails := ResolutionDetails{
+			Variant:   variant,
+			RuleIndex: i,
+			RuleName:  rule.Name,
+		}
+
+		// reason is determined by nature of rule
+		// if the rule has percentages, then SPLIT
+		// otherwise, TARGETING_MATCH
+		resolutionDetails.Reason = ReasonTargetingMatch
+
+		return f.value(variant), resolutionDetails
 	}
 
-	variant := f.DefaultRule.Evaluate(true)
+	variant, _ := f.DefaultRule.Evaluate()
 
 	resolutionDetails := ResolutionDetails{Variant: variant, Reason: ReasonDefault}
 
@@ -70,8 +85,15 @@ type Rule struct {
 	Variant string `json:"variant" yaml:"variant"`
 }
 
-func (r *Rule) Evaluate(_ bool) string {
-	return r.Variant
+func (r *Rule) Evaluate() (string, error) {
+	// if this rule has percentages, use them
+
+	// if this rule has a query, check whether it applies
+	// if it does, return variant
+	// otherwise, return empty string and ErrRuleDoesNotApply
+
+	// otherwise, return the variant
+	return r.Variant, nil
 }
 
 type ResolutionDetails struct {

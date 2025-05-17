@@ -89,9 +89,15 @@ func (p *Parser) ParseRule(rule *Rule) error {
 		return fmt.Errorf("rule missing name")
 	}
 
+	// we need to have exactly one of these but not both
+	// 1) variant (with or without query)
+	// 2) percentages (with variants that add up to 100)
+
 	if len(rule.Variant) == 0 {
 		return fmt.Errorf("rule missing variant")
 	}
+
+	// TODO: ensure that flag variants include rule variant
 
 	return nil
 }
