@@ -5,24 +5,25 @@ import (
 	"maps"
 	"sync"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Client struct {
 	options      file.Options
-	initialFlags map[string]*file.Flag
-	updatedFlags map[string]*file.Flag
+	initialFlags map[string]*flags.Flag
+	updatedFlags map[string]*flags.Flag
 	callCount    int
 	mtx          sync.RWMutex
 }
 
-func (c *Client) Read(ctx context.Context) (map[string]*file.Flag, error) {
+func (c *Client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
 	c.mtx.RLock()
 
 	callCount := c.callCount
 
-	result := map[string]*file.Flag{}
+	result := map[string]*flags.Flag{}
 
 	if callCount == 0 {
 		maps.Copy(result, c.initialFlags)

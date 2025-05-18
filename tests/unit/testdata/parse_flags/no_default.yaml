@@ -1,0 +1,4 @@
+test:
+  variants:
+    variant1: 0
+    variant2: 100

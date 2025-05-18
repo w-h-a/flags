@@ -1,0 +1,9 @@
+test:
+  variants:
+    default: false
+    variant2: true
+  rules: 
+    - name: rule1
+      variant: "variant2"
+    - name: rule1
+      variant: "default"

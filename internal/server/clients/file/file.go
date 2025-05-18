@@ -2,13 +2,10 @@ package file
 
 import (
 	"context"
-	"errors"
-)
 
-var (
-	ErrRuleDoesNotApply = errors.New("rule does not apply")
+	"github.com/w-h-a/flags/internal/flags"
 )
 
 type Client interface {
-	Read(ctx context.Context) (map[string]*Flag, error)
+	Read(ctx context.Context) (map[string]*flags.Flag, error)
 }

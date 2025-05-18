@@ -35,6 +35,10 @@ func main() {
 						Usage:    "Provide the port of the server",
 						Required: true,
 					},
+					&cli.BoolFlag{
+						Name:  "insecure",
+						Usage: "Provide if using http",
+					},
 					&cli.StringFlag{
 						Name:     "apiKey",
 						Usage:    "Provide the api key for the server",
@@ -48,6 +52,24 @@ func main() {
 					&cli.StringFlag{
 						Name:     "flagType",
 						Usage:    "Provide the flag type (i.e., bool, int, float64, string)",
+						Required: true,
+					},
+				},
+			},
+			{
+				Name: "flags",
+				Action: func(ctx *cli.Context) error {
+					return cmd.Flags(ctx)
+				},
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "filePath",
+						Usage:    "Provide the file path to the flags",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "format",
+						Usage:    "Provide the format of the flags (yaml or json)",
 						Required: true,
 					},
 				},

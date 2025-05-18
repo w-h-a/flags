@@ -1,22 +1,18 @@
-package file
+package flags
 
 import (
 	"encoding/json"
 	"fmt"
 	"strings"
 
-	"github.com/w-h-a/flags/internal/server/config"
 	"gopkg.in/yaml.v3"
 )
 
-type Parser struct {
-}
-
-func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
+func Factory(bs []byte, format string) (map[string]*Flag, error) {
 	var flags map[string]*Flag
 	var err error
 
-	switch strings.ToLower(config.FlagFormat()) {
+	switch strings.ToLower(format) {
 	case "json":
 		err = json.Unmarshal(bs, &flags)
 	default:
@@ -28,6 +24,11 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 	}
 
 	for _, flag := range flags {
+		// sanity check
+		if flag == nil {
+			return nil, fmt.Errorf("nil flag")
+		}
+
 		// add the default
 		flag.DefaultRule = &Rule{
 			Name:    "default",
@@ -46,7 +47,11 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 		ruleNames := map[string]any{}
 
 		for _, rule := range flag.Rules {
-			if err := p.ParseRule(rule, flag.Variants); err != nil {
+			if rule == nil {
+				return nil, fmt.Errorf("nil rule")
+			}
+
+			if err := parseRule(rule, flag.Variants); err != nil {
 				return nil, err
 			}
 
@@ -65,7 +70,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 			var currentType string
 
 			if len(variantType) > 0 {
-				currentType, err = p.extractVariantType(variant)
+				currentType, err = extractVariantType(variant)
 				if err != nil {
 					return nil, err
 				}
@@ -73,7 +78,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 					return nil, fmt.Errorf("discovered flag variants with different types")
 				}
 			} else {
-				variantType, err = p.extractVariantType(variant)
+				variantType, err = extractVariantType(variant)
 				if err != nil {
 					return nil, err
 				}
@@ -84,7 +89,7 @@ func (p *Parser) ParseFlags(bs []byte) (map[string]*Flag, error) {
 	return flags, nil
 }
 
-func (p *Parser) ParseRule(rule *Rule, variants map[string]*any) error {
+func parseRule(rule *Rule, variants map[string]*any) error {
 	if len(rule.Name) == 0 {
 		return fmt.Errorf("rule missing name")
 	}
@@ -105,7 +110,7 @@ func (p *Parser) ParseRule(rule *Rule, variants map[string]*any) error {
 	return nil
 }
 
-func (p *Parser) extractVariantType(variant *any) (string, error) {
+func extractVariantType(variant *any) (string, error) {
 	v := (*variant)
 
 	switch v.(type) {

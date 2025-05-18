@@ -1,0 +1,5 @@
+test:
+  variants:
+    default: true
+  rules:
+    - variant: default

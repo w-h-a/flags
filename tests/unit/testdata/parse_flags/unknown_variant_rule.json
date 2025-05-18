@@ -1,0 +1,13 @@
+{
+    "test": {
+        "variants": {
+            "default": false
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "enabled"
+            }
+        ]
+    }
+}

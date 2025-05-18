@@ -1,4 +1,4 @@
-package file
+package flags
 
 import (
 	"errors"
@@ -13,6 +13,10 @@ const (
 	ReasonSplit          string = "SPLIT"
 
 	ErrorNotFound string = "FLAG_NOT_FOUND"
+)
+
+var (
+	ErrRuleDoesNotApply = errors.New("rule does not apply")
 )
 
 type Flag struct {

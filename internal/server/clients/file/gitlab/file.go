@@ -8,17 +8,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
 	options    file.Options
 	httpClient *http.Client
-	parser     *file.Parser
 }
 
-func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
+func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
 	// TODO: generalize
 	file := c.options.Files[0]
 
@@ -52,7 +53,7 @@ func (c *client) Read(ctx context.Context) (map[string]*file.Flag, error) {
 		return nil, fmt.Errorf("failed to read body from github: %v", err)
 	}
 
-	return c.parser.ParseFlags(bs)
+	return flags.Factory(bs, config.FlagFormat())
 }
 
 func NewFileClient(opts ...file.Option) file.Client {
@@ -68,7 +69,6 @@ func NewFileClient(opts ...file.Option) file.Client {
 	c := &client{
 		options:    options,
 		httpClient: httpClient,
-		parser:     &file.Parser{},
 	}
 
 	return c

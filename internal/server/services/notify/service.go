@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/message"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
@@ -15,7 +15,7 @@ type Service struct {
 	waitGroup *sync.WaitGroup
 }
 
-func (s *Service) Notify(old, new map[string]*file.Flag) {
+func (s *Service) Notify(old, new map[string]*flags.Flag) {
 	diff := s.diff(old, new)
 
 	if !diff.HasDiff() {
@@ -40,10 +40,10 @@ func (s *Service) Close() {
 	s.waitGroup.Wait()
 }
 
-func (s *Service) diff(old, new map[string]*file.Flag) message.Diff {
+func (s *Service) diff(old, new map[string]*flags.Flag) message.Diff {
 	diff := message.Diff{
-		Deleted: map[string]*file.Flag{},
-		Added:   map[string]*file.Flag{},
+		Deleted: map[string]*flags.Flag{},
+		Added:   map[string]*flags.Flag{},
 		Updated: map[string]message.DiffUpdated{},
 	}
 
