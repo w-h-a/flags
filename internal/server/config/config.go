@@ -123,7 +123,7 @@ func New() {
 
 		fileInterval := os.Getenv("FILE_INTERVAL")
 		if len(fileInterval) > 0 {
-			if interval, err := strconv.Atoi(fileInterval); err != nil && interval >= 1 {
+			if interval, err := strconv.Atoi(fileInterval); err == nil && interval >= 1 {
 				instance.fileInterval = interval
 			}
 		}
@@ -145,7 +145,7 @@ func New() {
 
 				reportInterval := os.Getenv("REPORT_INTERVAL")
 				if len(reportInterval) > 0 {
-					if interval, err := strconv.Atoi(reportInterval); err != nil && interval >= 1 {
+					if interval, err := strconv.Atoi(reportInterval); err == nil && interval >= 1 {
 						instance.reportInterval = interval
 					}
 				}
