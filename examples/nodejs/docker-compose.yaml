@@ -20,12 +20,14 @@ services:
 
   flags:
     container_name: flags
-    image: wesha/flags:1.8.0
+    image: wesha/flags:1.8.1
     command: server
+    ports: 
+      - '4000:4000'
     environment:
       - ENV=prod
       - NAME=flags
-      - VERSION=1.8.0
+      - VERSION=1.8.1
       - HTTP_ADDRESS=:4000
       - API_KEYS=myflagstoken
       - TRACES_ADDRESS=jaeger:4318
