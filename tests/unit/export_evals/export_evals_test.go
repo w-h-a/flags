@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/report"
 	"github.com/w-h-a/flags/internal/server/clients/report/mock"
 	"github.com/w-h-a/flags/internal/server/services/export"
@@ -30,7 +31,7 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 	exportStop := make(chan struct{})
 
 	go func() {
-		errCh <- exportReports(exportService, exportStop, 10*time.Millisecond)
+		errCh <- server.ExportReports(exportService, exportStop, 10*time.Millisecond)
 	}()
 
 	want := []export.Event{
@@ -85,7 +86,7 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 	exportStop := make(chan struct{})
 
 	go func() {
-		errCh <- exportReports(exportService, exportStop, 10*time.Minute)
+		errCh <- server.ExportReports(exportService, exportStop, 10*time.Minute)
 	}()
 
 	want := []export.Event{
@@ -125,24 +126,5 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 	case err := <-errCh:
 		require.NoError(t, err)
 	case <-time.After(30 * time.Second):
-	}
-}
-
-func exportReports(
-	exportService *export.Service,
-	stop chan struct{},
-	dur time.Duration,
-) error {
-	ticker := time.NewTicker(dur)
-
-	for {
-		select {
-		case <-ticker.C:
-			exportService.Flush()
-		case <-stop:
-			ticker.Stop()
-			exportService.Close()
-			return nil
-		}
 	}
 }
