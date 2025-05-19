@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/flags/internal/flags"
+	"github.com/w-h-a/flags/internal/server"
 	"github.com/w-h-a/flags/internal/server/clients/file"
 	mockfile "github.com/w-h-a/flags/internal/server/clients/file/mock"
 	mockmessage "github.com/w-h-a/flags/internal/server/clients/message/mock"
@@ -57,7 +58,7 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 	updateStop := make(chan struct{})
 
 	go func() {
-		errCh <- updateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
+		errCh <- server.UpdateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
 	}()
 
 	time.Sleep(500 * time.Millisecond)
@@ -126,7 +127,7 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 	updateStop := make(chan struct{})
 
 	go func() {
-		errCh <- updateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
+		errCh <- server.UpdateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
 	}()
 
 	time.Sleep(500 * time.Millisecond)
@@ -191,7 +192,7 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 	updateStop := make(chan struct{})
 
 	go func() {
-		errCh <- updateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
+		errCh <- server.UpdateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
 	}()
 
 	time.Sleep(500 * time.Millisecond)
@@ -258,7 +259,7 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 	updateStop := make(chan struct{})
 
 	go func() {
-		errCh <- updateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
+		errCh <- server.UpdateCache(cacheService, notifyService, updateStop, 10*time.Millisecond)
 	}()
 
 	time.Sleep(500 * time.Millisecond)
@@ -277,26 +278,5 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 	case err := <-errCh:
 		require.NoError(t, err)
 	case <-time.After(30 * time.Second):
-	}
-}
-
-func updateCache(
-	cacheService *cache.Service,
-	notifyService *notify.Service,
-	stop chan struct{},
-	dur time.Duration,
-) error {
-	ticker := time.NewTicker(dur)
-
-	for {
-		select {
-		case <-ticker.C:
-			old, new, _ := cacheService.RetrieveFlags()
-			notifyService.Notify(old, new)
-		case <-stop:
-			ticker.Stop()
-			notifyService.Close()
-			return nil
-		}
 	}
 }

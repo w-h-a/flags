@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/w-h-a/flags/internal/server/clients/file"
@@ -14,6 +15,7 @@ import (
 	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/serverv2"
 	httpserver "github.com/w-h-a/pkg/serverv2/http"
+	"github.com/w-h-a/pkg/telemetry/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 )
@@ -75,4 +77,48 @@ func Factory(
 	httpServer.Handle(handler)
 
 	return httpServer, cacheService, exportService, notifyService, nil
+}
+
+func UpdateCache(
+	cacheService *cache.Service,
+	notifyService *notify.Service,
+	stop chan struct{},
+	dur time.Duration,
+) error {
+	ticker := time.NewTicker(dur)
+
+	for {
+		select {
+		case <-ticker.C:
+			old, new, err := cacheService.RetrieveFlags()
+			if err != nil {
+				log.Warnf("failed to update the cache: %v", err)
+			}
+
+			notifyService.Notify(old, new)
+		case <-stop:
+			ticker.Stop()
+			notifyService.Close()
+			return nil
+		}
+	}
+}
+
+func ExportReports(
+	exportService *export.Service,
+	stop chan struct{},
+	dur time.Duration,
+) error {
+	ticker := time.NewTicker(dur)
+
+	for {
+		select {
+		case <-ticker.C:
+			exportService.Flush()
+		case <-stop:
+			ticker.Stop()
+			exportService.Close()
+			return nil
+		}
+	}
 }

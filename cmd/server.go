@@ -17,9 +17,6 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/report"
 	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
 	"github.com/w-h-a/flags/internal/server/config"
-	"github.com/w-h-a/flags/internal/server/services/cache"
-	"github.com/w-h-a/flags/internal/server/services/export"
-	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
 	"github.com/w-h-a/pkg/utils/memoryutils"
@@ -161,7 +158,12 @@ func Server(ctx *cli.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errCh <- updateCache(cacheService, notifyService, cacheStop)
+		errCh <- server.UpdateCache(
+			cacheService,
+			notifyService,
+			cacheStop,
+			time.Duration(config.FileInterval())*time.Second,
+		)
 	}()
 
 	// start exporter
@@ -169,7 +171,11 @@ func Server(ctx *cli.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		errCh <- exportReports(exportService, exportStop)
+		errCh <- server.ExportReports(
+			exportService,
+			exportStop,
+			time.Duration(config.ReportInterval())*time.Second,
+		)
 	}()
 
 	// block
@@ -203,54 +209,6 @@ func Server(ctx *cli.Context) error {
 	log.Info("successfully stopped server")
 
 	return nil
-}
-
-func updateCache(
-	cacheService *cache.Service,
-	notifyService *notify.Service,
-	stop chan struct{},
-) error {
-	// TODO: confirm poll interval is valid
-
-	// TODO: retrieve from config
-	ticker := time.NewTicker(2 * time.Minute)
-
-	for {
-		select {
-		case <-ticker.C:
-			old, new, err := cacheService.RetrieveFlags()
-			if err != nil {
-				log.Warnf("failed to update the cache: %v", err)
-			}
-
-			notifyService.Notify(old, new)
-		case <-stop:
-			ticker.Stop()
-			notifyService.Close()
-			return nil
-		}
-	}
-}
-
-func exportReports(
-	exportService *export.Service,
-	stop chan struct{},
-) error {
-	// TODO: confirm
-
-	// TODO: retrieve from config
-	ticker := time.NewTicker(2 * time.Minute)
-
-	for {
-		select {
-		case <-ticker.C:
-			exportService.Flush()
-		case <-stop:
-			ticker.Stop()
-			exportService.Close()
-			return nil
-		}
-	}
 }
 
 func initFileClient() file.Client {

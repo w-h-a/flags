@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -24,9 +25,11 @@ type config struct {
 	fileClientDir   string
 	fileClientFiles []string
 	fileClientToken string
+	fileInterval    int
 	createReports   bool
 	reportClient    string
 	reportClientDir string
+	reportInterval  int
 	messageClient   string
 	messageURL      string
 }
@@ -46,9 +49,11 @@ func New() {
 			fileClientDir:   ".",
 			fileClientFiles: []string{"/flags.yaml"},
 			fileClientToken: "",
+			fileInterval:    60,
 			createReports:   false,
 			reportClient:    "local",
 			reportClientDir: "/tmp",
+			reportInterval:  120,
 			messageClient:   "local",
 			messageURL:      "",
 		}
@@ -116,6 +121,13 @@ func New() {
 			instance.fileClientToken = fileClientToken
 		}
 
+		fileInterval := os.Getenv("FILE_INTERVAL")
+		if len(fileInterval) > 0 {
+			if interval, err := strconv.Atoi(fileInterval); err != nil && interval >= 1 {
+				instance.fileInterval = interval
+			}
+		}
+
 		createReports := os.Getenv("CREATE_REPORTS")
 		if len(createReports) > 0 {
 			if createReports == "true" {
@@ -129,6 +141,13 @@ func New() {
 				reportClientDir := os.Getenv("REPORT_CLIENT_DIR")
 				if len(reportClientDir) > 0 {
 					instance.reportClientDir = reportClientDir
+				}
+
+				reportInterval := os.Getenv("REPORT_INTERVAL")
+				if len(reportInterval) > 0 {
+					if interval, err := strconv.Atoi(reportInterval); err != nil && interval >= 1 {
+						instance.reportInterval = interval
+					}
 				}
 			}
 		}
@@ -242,6 +261,14 @@ func FileClientToken() string {
 	return instance.fileClientToken
 }
 
+func FileInterval() int {
+	if instance == nil {
+		return 0
+	}
+
+	return instance.fileInterval
+}
+
 func CreateReports() bool {
 	if instance == nil {
 		return false
@@ -264,6 +291,14 @@ func ReportClientDir() string {
 	}
 
 	return instance.reportClientDir
+}
+
+func ReportInterval() int {
+	if instance == nil {
+		return 0
+	}
+
+	return instance.reportInterval
 }
 
 func MessageClient() string {
@@ -297,9 +332,11 @@ func Reset() {
 		fileClientDir:   ".",
 		fileClientFiles: []string{"/flags.yaml"},
 		fileClientToken: "",
+		fileInterval:    60,
 		createReports:   false,
 		reportClient:    "local",
 		reportClientDir: "/tmp",
+		reportInterval:  120,
 		messageClient:   "local",
 		messageURL:      "",
 	}
