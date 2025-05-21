@@ -6,13 +6,13 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/w-h-a/flags/internal/flags"
-	"github.com/w-h-a/flags/internal/server/clients/message"
+	"github.com/w-h-a/flags/internal/server/clients/notifier"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Service struct {
-	notifiers []message.Client
-	waitGroup *sync.WaitGroup
+	notifyClient notifier.Notifier
+	waitGroup    *sync.WaitGroup
 }
 
 func (s *Service) Notify(old, new map[string]*flags.Flag) {
@@ -22,29 +22,27 @@ func (s *Service) Notify(old, new map[string]*flags.Flag) {
 		return
 	}
 
-	for _, n := range s.notifiers {
-		s.waitGroup.Add(1)
+	s.waitGroup.Add(1)
 
-		go func() {
-			defer s.waitGroup.Done()
+	go func() {
+		defer s.waitGroup.Done()
 
-			err := n.Send(context.TODO(), diff)
-			if err != nil {
-				log.Errorf("notify service failed to send message: %v", err)
-			}
-		}()
-	}
+		err := s.notifyClient.Notify(context.TODO(), diff)
+		if err != nil {
+			log.Errorf("notify service failed to send message: %v", err)
+		}
+	}()
 }
 
 func (s *Service) Close() {
 	s.waitGroup.Wait()
 }
 
-func (s *Service) diff(old, new map[string]*flags.Flag) message.Diff {
-	diff := message.Diff{
+func (s *Service) diff(old, new map[string]*flags.Flag) notifier.Diff {
+	diff := notifier.Diff{
 		Deleted: map[string]*flags.Flag{},
 		Added:   map[string]*flags.Flag{},
-		Updated: map[string]message.DiffUpdated{},
+		Updated: map[string]notifier.DiffUpdated{},
 	}
 
 	for k := range old {
@@ -59,7 +57,7 @@ func (s *Service) diff(old, new map[string]*flags.Flag) message.Diff {
 
 		// if it's not equal, it needs to be shown as updated
 		if !cmp.Equal(of, nf) {
-			diff.Updated[k] = message.DiffUpdated{
+			diff.Updated[k] = notifier.DiffUpdated{
 				Before: of,
 				After:  nf,
 			}
@@ -77,9 +75,9 @@ func (s *Service) diff(old, new map[string]*flags.Flag) message.Diff {
 	return diff
 }
 
-func New(notifiers ...message.Client) *Service {
+func New(notifyClient notifier.Notifier) *Service {
 	return &Service{
-		notifiers: notifiers,
-		waitGroup: &sync.WaitGroup{},
+		notifyClient: notifyClient,
+		waitGroup:    &sync.WaitGroup{},
 	}
 }

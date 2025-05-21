@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server"
-	"github.com/w-h-a/flags/internal/server/clients/file"
-	mockfile "github.com/w-h-a/flags/internal/server/clients/file/mock"
-	mockmessage "github.com/w-h-a/flags/internal/server/clients/message/mock"
+	mocknotifier "github.com/w-h-a/flags/internal/server/clients/notifier/mock"
+	"github.com/w-h-a/flags/internal/server/clients/reader"
+	mockreader "github.com/w-h-a/flags/internal/server/clients/reader/mock"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/flags/tests/unit"
@@ -24,35 +24,35 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 
 	unit.SetLogger()
 
-	fileClient := mockfile.NewFileClient(
-		file.WithDir("any"),
-		file.WithFiles("any"),
-		mockfile.WithInitialFlags(
+	readClient := mockreader.NewReader(
+		reader.WithDir("any"),
+		reader.WithFile("any"),
+		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"hello": {},
 			},
 		),
-		mockfile.WithUpdatedFlags(
+		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
 				"hello": {},
 			},
 		),
 	)
 
-	cacheService := cache.New(fileClient)
+	cacheService := cache.New(readClient)
 
 	old, new, err := cacheService.RetrieveFlags()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(old))
 	require.Equal(t, 1, len(new))
 
-	f := fileClient.(*mockfile.Client)
-	callCount := f.CallCount()
+	r := readClient.(*mockreader.Client)
+	callCount := r.CallCount()
 	require.Equal(t, 1, callCount)
 
-	messageClient := mockmessage.NewMessageClient()
+	notifyClient := mocknotifier.NewNotifier()
 
-	notifyService := notify.New(messageClient)
+	notifyService := notify.New(notifyClient)
 
 	errCh := make(chan error, 1)
 	updateStop := make(chan struct{})
@@ -67,8 +67,8 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(new))
 
-	m := messageClient.(*mockmessage.Client)
-	wasCalled := m.WasCalled()
+	n := notifyClient.(*mocknotifier.Client)
+	wasCalled := n.WasCalled()
 	require.False(t, wasCalled)
 
 	close(updateStop)
@@ -88,17 +88,17 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 
 	unit.SetLogger()
 
-	fileClient := mockfile.NewFileClient(
-		file.WithDir("any"),
-		file.WithFiles("any"),
-		mockfile.WithInitialFlags(
+	readClient := mockreader.NewReader(
+		reader.WithDir("any"),
+		reader.WithFile("any"),
+		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(true),
 				},
 			},
 		),
-		mockfile.WithUpdatedFlags(
+		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
@@ -108,20 +108,20 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 		),
 	)
 
-	cacheService := cache.New(fileClient)
+	cacheService := cache.New(readClient)
 
 	old, new, err := cacheService.RetrieveFlags()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(old))
 	require.Equal(t, 1, len(new))
 
-	f := fileClient.(*mockfile.Client)
-	callCount := f.CallCount()
+	r := readClient.(*mockreader.Client)
+	callCount := r.CallCount()
 	require.Equal(t, 1, callCount)
 
-	messageClient := mockmessage.NewMessageClient()
+	notifyClient := mocknotifier.NewNotifier()
 
-	notifyService := notify.New(messageClient)
+	notifyService := notify.New(notifyClient)
 
 	errCh := make(chan error, 1)
 	updateStop := make(chan struct{})
@@ -136,8 +136,8 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(new))
 
-	m := messageClient.(*mockmessage.Client)
-	wasCalled := m.WasCalled()
+	n := notifyClient.(*mocknotifier.Client)
+	wasCalled := n.WasCalled()
 	require.True(t, wasCalled)
 
 	close(updateStop)
@@ -157,13 +157,13 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 
 	unit.SetLogger()
 
-	fileClient := mockfile.NewFileClient(
-		file.WithDir("any"),
-		file.WithFiles("any"),
-		mockfile.WithInitialFlags(
+	readClient := mockreader.NewReader(
+		reader.WithDir("any"),
+		reader.WithFile("any"),
+		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{},
 		),
-		mockfile.WithUpdatedFlags(
+		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
@@ -173,20 +173,20 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 		),
 	)
 
-	cacheService := cache.New(fileClient)
+	cacheService := cache.New(readClient)
 
 	old, new, err := cacheService.RetrieveFlags()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(old))
 	require.Equal(t, 0, len(new))
 
-	f := fileClient.(*mockfile.Client)
-	callCount := f.CallCount()
+	r := readClient.(*mockreader.Client)
+	callCount := r.CallCount()
 	require.Equal(t, 1, callCount)
 
-	messageClient := mockmessage.NewMessageClient()
+	notifyClient := mocknotifier.NewNotifier()
 
-	notifyService := notify.New(messageClient)
+	notifyService := notify.New(notifyClient)
 
 	errCh := make(chan error, 1)
 	updateStop := make(chan struct{})
@@ -201,8 +201,8 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(new))
 
-	m := messageClient.(*mockmessage.Client)
-	wasCalled := m.WasCalled()
+	n := notifyClient.(*mocknotifier.Client)
+	wasCalled := n.WasCalled()
 	require.True(t, wasCalled)
 
 	close(updateStop)
@@ -222,10 +222,10 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 
 	unit.SetLogger()
 
-	fileClient := mockfile.NewFileClient(
-		file.WithDir("any"),
-		file.WithFiles("any"),
-		mockfile.WithInitialFlags(
+	readClient := mockreader.NewReader(
+		reader.WithDir("any"),
+		reader.WithFile("any"),
+		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
@@ -233,27 +233,27 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 				"flag2": {},
 			},
 		),
-		mockfile.WithUpdatedFlags(
+		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
 				"flag2": {},
 			},
 		),
 	)
 
-	cacheService := cache.New(fileClient)
+	cacheService := cache.New(readClient)
 
 	old, new, err := cacheService.RetrieveFlags()
 	require.NoError(t, err)
 	require.Equal(t, 0, len(old))
 	require.Equal(t, 2, len(new))
 
-	f := fileClient.(*mockfile.Client)
-	callCount := f.CallCount()
+	r := readClient.(*mockreader.Client)
+	callCount := r.CallCount()
 	require.Equal(t, 1, callCount)
 
-	messageClient := mockmessage.NewMessageClient()
+	notifyClient := mocknotifier.NewNotifier()
 
-	notifyService := notify.New(messageClient)
+	notifyService := notify.New(notifyClient)
 
 	errCh := make(chan error, 1)
 	updateStop := make(chan struct{})
@@ -268,8 +268,8 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(new))
 
-	m := messageClient.(*mockmessage.Client)
-	wasCalled := m.WasCalled()
+	n := notifyClient.(*mocknotifier.Client)
+	wasCalled := n.WasCalled()
 	require.True(t, wasCalled)
 
 	close(updateStop)

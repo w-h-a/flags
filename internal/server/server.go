@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/w-h-a/flags/internal/server/clients/file"
-	"github.com/w-h-a/flags/internal/server/clients/message"
-	"github.com/w-h-a/flags/internal/server/clients/report"
+	"github.com/w-h-a/flags/internal/server/clients/exporter"
+	"github.com/w-h-a/flags/internal/server/clients/notifier"
+	"github.com/w-h-a/flags/internal/server/clients/reader"
 	"github.com/w-h-a/flags/internal/server/config"
 	httphandlers "github.com/w-h-a/flags/internal/server/handlers/http"
 	"github.com/w-h-a/flags/internal/server/services/cache"
@@ -21,14 +21,14 @@ import (
 )
 
 func Factory(
-	fileClient file.Client,
-	reportClient report.Client,
-	notifiers ...message.Client,
+	readClient reader.Reader,
+	exportClient exporter.Exporter,
+	notifyClient notifier.Notifier,
 ) (serverv2.Server, *cache.Service, *export.Service, *notify.Service, error) {
 	// services
-	cacheService := cache.New(fileClient)
-	exportService := export.New(reportClient)
-	notifyService := notify.New(notifiers...)
+	cacheService := cache.New(readClient)
+	exportService := export.New(exportClient)
+	notifyService := notify.New(notifyClient)
 
 	old, new, err := cacheService.RetrieveFlags()
 	if err != nil {
@@ -47,13 +47,14 @@ func Factory(
 	// create http server
 	router := mux.NewRouter()
 
-	httpFlags := httphandlers.NewFlagsHandler(cacheService, exportService)
-	httpConfig := httphandlers.NewConfigHandler()
+	httpOFREP := httphandlers.NewOFREPHandler(cacheService, exportService)
+
+	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags/{key}").HandlerFunc(httpOFREP.PostOne)
+	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags").HandlerFunc(httpOFREP.PostAll)
+	router.Methods(http.MethodGet).Path("/ofrep/v1/configuration").HandlerFunc(httpOFREP.GetConfig)
+
 	httpStatus := httphandlers.NewStatusHandler(cacheService)
 
-	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags/{key}").HandlerFunc(httpFlags.PostOne)
-	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags").HandlerFunc(httpFlags.PostAll)
-	router.Methods(http.MethodGet).Path("/ofrep/v1/configuration").HandlerFunc(httpConfig.GetConfig)
 	router.Methods(http.MethodGet).Path("/status").HandlerFunc(httpStatus.GetStatus)
 
 	httpOpts := []serverv2.ServerOption{
