@@ -7,15 +7,15 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"github.com/w-h-a/flags/internal/server"
-	"github.com/w-h-a/flags/internal/server/clients/file"
-	"github.com/w-h-a/flags/internal/server/clients/file/github"
-	"github.com/w-h-a/flags/internal/server/clients/file/gitlab"
-	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
-	"github.com/w-h-a/flags/internal/server/clients/message"
-	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
-	"github.com/w-h-a/flags/internal/server/clients/message/slack"
-	"github.com/w-h-a/flags/internal/server/clients/report"
-	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
+	"github.com/w-h-a/flags/internal/server/clients/exporter"
+	localexporter "github.com/w-h-a/flags/internal/server/clients/exporter/local"
+	"github.com/w-h-a/flags/internal/server/clients/notifier"
+	localnotifier "github.com/w-h-a/flags/internal/server/clients/notifier/local"
+	"github.com/w-h-a/flags/internal/server/clients/notifier/slack"
+	"github.com/w-h-a/flags/internal/server/clients/reader"
+	"github.com/w-h-a/flags/internal/server/clients/reader/github"
+	"github.com/w-h-a/flags/internal/server/clients/reader/gitlab"
+	localreader "github.com/w-h-a/flags/internal/server/clients/reader/local"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -132,12 +132,12 @@ func Server(ctx *cli.Context) error {
 	}
 
 	// clients
-	fileClient := initFileClient()
-	reportClient := initReportClient()
-	messageClient := initMessageClient()
+	readClient := initReadClient()
+	exportClient := initExportClient()
+	notifyClient := initNotifyClient()
 
 	// server + services
-	httpServer, cacheService, exportService, notifyService, err := server.Factory(fileClient, reportClient, messageClient)
+	httpServer, cacheService, exportService, notifyService, err := server.Factory(readClient, exportClient, notifyClient)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func Server(ctx *cli.Context) error {
 			cacheService,
 			notifyService,
 			cacheStop,
-			time.Duration(config.FileInterval())*time.Second,
+			time.Duration(config.ReadInterval())*time.Second,
 		)
 	}()
 
@@ -174,7 +174,7 @@ func Server(ctx *cli.Context) error {
 		errCh <- server.ExportReports(
 			exportService,
 			exportStop,
-			time.Duration(config.ReportInterval())*time.Second,
+			time.Duration(config.ExportInterval())*time.Second,
 		)
 	}()
 
@@ -211,44 +211,44 @@ func Server(ctx *cli.Context) error {
 	return nil
 }
 
-func initFileClient() file.Client {
-	switch config.FileClient() {
+func initReadClient() reader.Reader {
+	switch config.ReadClient() {
 	case "github":
-		return github.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
-			file.WithToken(config.FileClientToken()),
+		return github.NewReader(
+			reader.WithDir(config.ReadClientDir()),
+			reader.WithFile(config.ReadClientFile()),
+			reader.WithToken(config.ReadClientToken()),
 		)
 	case "gitlab":
-		return gitlab.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
-			file.WithToken(config.FileClientToken()),
+		return gitlab.NewReader(
+			reader.WithDir(config.ReadClientDir()),
+			reader.WithFile(config.ReadClientFile()),
+			reader.WithToken(config.ReadClientToken()),
 		)
 	default:
-		return localfile.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
+		return localreader.NewReader(
+			reader.WithDir(config.ReadClientDir()),
+			reader.WithFile(config.ReadClientFile()),
 		)
 	}
 }
 
-func initReportClient() report.Client {
-	switch config.ReportClient() {
+func initExportClient() exporter.Exporter {
+	switch config.ExportClient() {
 	default:
-		return localreport.NewReportClient(
-			report.WithDir(config.ReportClientDir()),
+		return localexporter.NewExporter(
+			exporter.WithDir(config.ExportClientDir()),
 		)
 	}
 }
 
-func initMessageClient() message.Client {
-	switch config.MessageClient() {
+func initNotifyClient() notifier.Notifier {
+	switch config.NotifyClient() {
 	case "slack":
-		return slack.NewMessageClient(
-			message.WithURL(config.MessageURL()),
+		return slack.NewNotifier(
+			notifier.WithURL(config.NotifyURL()),
 		)
 	default:
-		return localmessage.NewMessageClient()
+		return localnotifier.NewNotifier()
 	}
 }

@@ -10,11 +10,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/flags/internal/server"
-	"github.com/w-h-a/flags/internal/server/clients/file"
-	localfile "github.com/w-h-a/flags/internal/server/clients/file/local"
-	localmessage "github.com/w-h-a/flags/internal/server/clients/message/local"
-	"github.com/w-h-a/flags/internal/server/clients/report"
-	localreport "github.com/w-h-a/flags/internal/server/clients/report/local"
+	"github.com/w-h-a/flags/internal/server/clients/exporter"
+	localexporter "github.com/w-h-a/flags/internal/server/clients/exporter/local"
+	localnotifier "github.com/w-h-a/flags/internal/server/clients/notifier/local"
+	"github.com/w-h-a/flags/internal/server/clients/reader"
+	localreader "github.com/w-h-a/flags/internal/server/clients/reader/local"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -54,8 +54,8 @@ func TestAllFlags_YAML(t *testing.T) {
 	for _, test := range tests {
 		// env vars
 		os.Setenv("API_KEYS", tok)
-		os.Setenv("FILE_CLIENT_DIR", dir)
-		os.Setenv("FILE_CLIENT_FILES", "/flags.yaml")
+		os.Setenv("READ_CLIENT_DIR", dir)
+		os.Setenv("READ_CLIENT_FILES", "/flags.yaml")
 
 		// config
 		config.New()
@@ -78,22 +78,22 @@ func TestAllFlags_YAML(t *testing.T) {
 		// metrics
 
 		// clients
-		fileClient := localfile.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
+		readClient := localreader.NewReader(
+			reader.WithDir(config.ReadClientDir()),
+			reader.WithFile(config.ReadClientFile()),
 		)
 
-		reportClient := localreport.NewReportClient(
-			report.WithDir(config.ReportClientDir()),
+		exportClient := localexporter.NewExporter(
+			exporter.WithDir(config.ExportClientDir()),
 		)
 
-		messageClient := localmessage.NewMessageClient()
+		notifyClient := localnotifier.NewNotifier()
 
 		// servers
 		httpServer, _, exportService, notifyService, err := server.Factory(
-			fileClient,
-			reportClient,
-			messageClient,
+			readClient,
+			exportClient,
+			notifyClient,
 		)
 		require.NoError(t, err)
 
@@ -164,8 +164,8 @@ func TestAllFlags_JSON(t *testing.T) {
 	for _, test := range tests {
 		// env vars
 		os.Setenv("API_KEYS", tok)
-		os.Setenv("FILE_CLIENT_DIR", dir)
-		os.Setenv("FILE_CLIENT_FILES", "/flags.json")
+		os.Setenv("READ_CLIENT_DIR", dir)
+		os.Setenv("READ_CLIENT_FILES", "/flags.json")
 
 		// config
 		config.New()
@@ -188,22 +188,22 @@ func TestAllFlags_JSON(t *testing.T) {
 		// metrics
 
 		// clients
-		fileClient := localfile.NewFileClient(
-			file.WithDir(config.FileClientDir()),
-			file.WithFiles(config.FileClientFiles()...),
+		readClient := localreader.NewReader(
+			reader.WithDir(config.ReadClientDir()),
+			reader.WithFile(config.ReadClientFile()),
 		)
 
-		reportClient := localreport.NewReportClient(
-			report.WithDir(config.ReportClientDir()),
+		exportClient := localexporter.NewExporter(
+			exporter.WithDir(config.ExportClientDir()),
 		)
 
-		messageClient := localmessage.NewMessageClient()
+		notifyClient := localnotifier.NewNotifier()
 
 		// servers
 		httpServer, _, exportService, notifyService, err := server.Factory(
-			fileClient,
-			reportClient,
-			messageClient,
+			readClient,
+			exportClient,
+			notifyClient,
 		)
 		require.NoError(t, err)
 

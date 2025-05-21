@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/flags/internal/server"
-	"github.com/w-h-a/flags/internal/server/clients/report"
-	"github.com/w-h-a/flags/internal/server/clients/report/mock"
+	"github.com/w-h-a/flags/internal/server/clients/exporter"
+	"github.com/w-h-a/flags/internal/server/clients/exporter/mock"
 	"github.com/w-h-a/flags/internal/server/services/export"
 	"github.com/w-h-a/flags/tests/unit"
 )
@@ -21,11 +21,11 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 
 	unit.SetLogger()
 
-	reportClient := mock.NewReportClient(
-		report.WithDir("any"),
+	exportClient := mock.NewExporter(
+		exporter.WithDir("any"),
 	)
 
-	exportService := export.New(reportClient)
+	exportService := export.New(exportClient)
 
 	errCh := make(chan error, 1)
 	exportStop := make(chan struct{})
@@ -50,7 +50,7 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 
 	time.Sleep(500 * time.Millisecond)
 
-	c := reportClient.(*mock.Client)
+	c := exportClient.(*mock.Client)
 
 	got := c.Records()
 
@@ -76,11 +76,11 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 
 	unit.SetLogger()
 
-	reportClient := mock.NewReportClient(
-		report.WithDir("any"),
+	exportClient := mock.NewExporter(
+		exporter.WithDir("any"),
 	)
 
-	exportService := export.New(reportClient)
+	exportService := export.New(exportClient)
 
 	errCh := make(chan error, 1)
 	exportStop := make(chan struct{})
@@ -105,7 +105,7 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 
 	time.Sleep(500 * time.Millisecond)
 
-	c := reportClient.(*mock.Client)
+	c := exportClient.(*mock.Client)
 
 	got := c.Records()
 

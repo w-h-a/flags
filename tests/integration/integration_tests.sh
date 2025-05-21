@@ -18,9 +18,9 @@ wait_for_server () {
 # set env vars
 export HTTP_ADDRESS=":4000"
 export API_KEYS="mytoken"
-export FILE_CLIENT="github"
-export FILE_CLIENT_DIR="w-h-a/flags"
-export FILE_CLIENT_FILES="tests/integration/testdata/flags.yaml"
+export READ_CLIENT="github"
+export READ_CLIENT_DIR="w-h-a/flags"
+export READ_CLIENT_FILE="tests/integration/testdata/flags.yaml"
 
 # run server
 make go-build
@@ -54,9 +54,9 @@ sleep 10
 export HTTP_ADDRESS=":4000"
 export API_KEYS="mytoken"
 export FLAG_FORMAT="json"
-export FILE_CLIENT="local"
-export FILE_CLIENT_DIR="./tests/integration/testdata"
-export FILE_CLIENT_FILES="/flags.json"
+export READ_CLIENT="local"
+export READ_CLIENT_DIR="./tests/integration/testdata"
+export READ_CLIENT_FILE="/flags.json"
 
 # run server
 make go-build

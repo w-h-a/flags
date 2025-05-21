@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/w-h-a/flags/internal/flags"
-	"github.com/w-h-a/flags/internal/server/clients/file"
+	"github.com/w-h-a/flags/internal/server/clients/reader"
 )
 
 var (
@@ -18,13 +18,13 @@ var (
 )
 
 type Service struct {
-	fileClient file.Client
+	readClient reader.Reader
 	store      map[string]*flags.Flag
 	lastUpdate time.Time
 	mtx        sync.RWMutex
 }
 
-func (s *Service) Flag(flagKey string) (FlagState, error) {
+func (s *Service) EvaluateFlag(flagKey string) (FlagState, error) {
 	var flag *flags.Flag
 	var ok bool
 
@@ -54,7 +54,7 @@ func (s *Service) Flag(flagKey string) (FlagState, error) {
 	return result, nil
 }
 
-func (s *Service) Flags() AllFlags {
+func (s *Service) EvaluateFlags() AllFlags {
 	flags := map[string]*flags.Flag{}
 
 	s.mtx.RLock()
@@ -82,7 +82,7 @@ func (s *Service) Flags() AllFlags {
 }
 
 func (s *Service) RetrieveFlags() (map[string]*flags.Flag, map[string]*flags.Flag, error) {
-	new, err := s.fileClient.Read(context.TODO())
+	new, err := s.readClient.Read(context.TODO())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -104,9 +104,9 @@ func (s *Service) LastUpdate() time.Time {
 	return s.lastUpdate
 }
 
-func New(fileClient file.Client) *Service {
+func New(readClient reader.Reader) *Service {
 	return &Service{
-		fileClient: fileClient,
+		readClient: readClient,
 		store:      map[string]*flags.Flag{},
 		mtx:        sync.RWMutex{},
 	}

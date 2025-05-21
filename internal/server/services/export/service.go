@@ -4,12 +4,12 @@ import (
 	"context"
 	"sync"
 
-	"github.com/w-h-a/flags/internal/server/clients/report"
+	"github.com/w-h-a/flags/internal/server/clients/exporter"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Service struct {
-	reportClient report.Client
+	exportClient exporter.Exporter
 	store        []Event
 	mtx          sync.RWMutex
 }
@@ -33,10 +33,10 @@ func (s *Service) Flush() {
 		return
 	}
 
-	records := []report.Record{}
+	records := []exporter.Record{}
 
 	for _, event := range s.store {
-		record := report.Record{
+		record := exporter.Record{
 			CreationDate: event.CreationDate,
 			Key:          event.Key,
 			Value:        event.Value,
@@ -48,7 +48,7 @@ func (s *Service) Flush() {
 		records = append(records, record)
 	}
 
-	if err := s.reportClient.Create(context.TODO(), records); err != nil {
+	if err := s.exportClient.Export(context.TODO(), records); err != nil {
 		log.Warnf("failed to export evaluation event: %v", err)
 		return
 	}
@@ -60,9 +60,9 @@ func (s *Service) Close() {
 	s.Flush()
 }
 
-func New(reportClient report.Client) *Service {
+func New(exportClient exporter.Exporter) *Service {
 	return &Service{
-		reportClient: reportClient,
+		exportClient: exportClient,
 		store:        []Event{},
 		mtx:          sync.RWMutex{},
 	}

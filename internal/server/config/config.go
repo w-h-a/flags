@@ -21,17 +21,17 @@ type config struct {
 	tracesAddress   string
 	metricsAddress  string
 	flagFormat      string
-	fileClient      string
-	fileClientDir   string
-	fileClientFiles []string
-	fileClientToken string
-	fileInterval    int
-	createReports   bool
-	reportClient    string
-	reportClientDir string
-	reportInterval  int
-	messageClient   string
-	messageURL      string
+	readClient      string
+	readClientDir   string
+	readClientFile  string
+	readClientToken string
+	readInterval    int
+	exportReports   bool
+	exportClient    string
+	exportClientDir string
+	exportInterval  int
+	notifyClient    string
+	notifyURL       string
 }
 
 func New() {
@@ -45,17 +45,17 @@ func New() {
 			tracesAddress:   "localhost:4318",
 			metricsAddress:  "localhost:4318",
 			flagFormat:      "yaml",
-			fileClient:      "local",
-			fileClientDir:   ".",
-			fileClientFiles: []string{"/flags.yaml"},
-			fileClientToken: "",
-			fileInterval:    60,
-			createReports:   false,
-			reportClient:    "local",
-			reportClientDir: "/tmp",
-			reportInterval:  120,
-			messageClient:   "local",
-			messageURL:      "",
+			readClient:      "local",
+			readClientDir:   ".",
+			readClientFile:  "/flags.yaml",
+			readClientToken: "",
+			readInterval:    60,
+			exportReports:   false,
+			exportClient:    "local",
+			exportClientDir: "/tmp",
+			exportInterval:  120,
+			notifyClient:    "local",
+			notifyURL:       "",
 		}
 
 		env := os.Getenv("ENV")
@@ -101,65 +101,65 @@ func New() {
 			instance.flagFormat = flagFormat
 		}
 
-		fileClient := os.Getenv("FILE_CLIENT")
-		if len(fileClient) > 0 {
-			instance.fileClient = fileClient
+		readClient := os.Getenv("READ_CLIENT")
+		if len(readClient) > 0 {
+			instance.readClient = readClient
 		}
 
-		fileClientDir := os.Getenv("FILE_CLIENT_DIR")
-		if len(fileClientDir) > 0 {
-			instance.fileClientDir = fileClientDir
+		readClientDir := os.Getenv("READ_CLIENT_DIR")
+		if len(readClientDir) > 0 {
+			instance.readClientDir = readClientDir
 		}
 
-		fileClientFiles := os.Getenv("FILE_CLIENT_FILES")
-		if len(fileClientFiles) > 0 {
-			instance.fileClientFiles = strings.Split(fileClientFiles, ",")
+		readClientFile := os.Getenv("READ_CLIENT_FILE")
+		if len(readClientFile) > 0 {
+			instance.readClientFile = readClientFile
 		}
 
-		fileClientToken := os.Getenv("FILE_CLIENT_TOKEN")
-		if len(fileClientToken) > 0 {
-			instance.fileClientToken = fileClientToken
+		readClientToken := os.Getenv("READ_CLIENT_TOKEN")
+		if len(readClientToken) > 0 {
+			instance.readClientToken = readClientToken
 		}
 
-		fileInterval := os.Getenv("FILE_INTERVAL")
-		if len(fileInterval) > 0 {
-			if interval, err := strconv.Atoi(fileInterval); err == nil && interval >= 1 {
-				instance.fileInterval = interval
+		readInterval := os.Getenv("READ_INTERVAL")
+		if len(readInterval) > 0 {
+			if interval, err := strconv.Atoi(readInterval); err == nil && interval >= 1 {
+				instance.readInterval = interval
 			}
 		}
 
-		createReports := os.Getenv("CREATE_REPORTS")
-		if len(createReports) > 0 {
-			if createReports == "true" {
-				instance.createReports = true
+		exportReports := os.Getenv("EXPORT_REPORTS")
+		if len(exportReports) > 0 {
+			if exportReports == "true" {
+				instance.exportReports = true
 
-				reportClient := os.Getenv("REPORT_CLIENT")
-				if len(reportClient) > 0 {
-					instance.reportClient = reportClient
+				exportClient := os.Getenv("EXPORT_CLIENT")
+				if len(exportClient) > 0 {
+					instance.exportClient = exportClient
 				}
 
-				reportClientDir := os.Getenv("REPORT_CLIENT_DIR")
-				if len(reportClientDir) > 0 {
-					instance.reportClientDir = reportClientDir
+				exportClientDir := os.Getenv("EXPORT_CLIENT_DIR")
+				if len(exportClientDir) > 0 {
+					instance.exportClientDir = exportClientDir
 				}
 
-				reportInterval := os.Getenv("REPORT_INTERVAL")
-				if len(reportInterval) > 0 {
-					if interval, err := strconv.Atoi(reportInterval); err == nil && interval >= 1 {
-						instance.reportInterval = interval
+				exportInterval := os.Getenv("EXPORT_INTERVAL")
+				if len(exportInterval) > 0 {
+					if interval, err := strconv.Atoi(exportInterval); err == nil && interval >= 1 {
+						instance.exportInterval = interval
 					}
 				}
 			}
 		}
 
-		messageClient := os.Getenv("MESSAGE_CLIENT")
-		if len(messageClient) > 0 {
-			instance.messageClient = messageClient
+		notifyClient := os.Getenv("NOTIFY_CLIENT")
+		if len(notifyClient) > 0 {
+			instance.notifyClient = notifyClient
 		}
 
-		messageURL := os.Getenv("MESSAGE_URL")
-		if len(messageURL) > 0 {
-			instance.messageURL = messageURL
+		notifyURL := os.Getenv("NOTIFY_URL")
+		if len(notifyURL) > 0 {
+			instance.notifyURL = notifyURL
 		}
 	})
 }
@@ -229,92 +229,92 @@ func FlagFormat() string {
 	return instance.flagFormat
 }
 
-func FileClient() string {
+func ReadClient() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.fileClient
+	return instance.readClient
 }
 
-func FileClientDir() string {
+func ReadClientDir() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.fileClientDir
+	return instance.readClientDir
 }
 
-func FileClientFiles() []string {
-	if instance == nil {
-		return []string{}
-	}
-
-	return instance.fileClientFiles
-}
-
-func FileClientToken() string {
+func ReadClientFile() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.fileClientToken
+	return instance.readClientFile
 }
 
-func FileInterval() int {
+func ReadClientToken() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.readClientToken
+}
+
+func ReadInterval() int {
 	if instance == nil {
 		return 0
 	}
 
-	return instance.fileInterval
+	return instance.readInterval
 }
 
-func CreateReports() bool {
+func ExportReports() bool {
 	if instance == nil {
 		return false
 	}
 
-	return instance.createReports
+	return instance.exportReports
 }
 
-func ReportClient() string {
+func ExportClient() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.reportClient
+	return instance.exportClient
 }
 
-func ReportClientDir() string {
+func ExportClientDir() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.reportClientDir
+	return instance.exportClientDir
 }
 
-func ReportInterval() int {
+func ExportInterval() int {
 	if instance == nil {
 		return 0
 	}
 
-	return instance.reportInterval
+	return instance.exportInterval
 }
 
-func MessageClient() string {
+func NotifyClient() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.messageClient
+	return instance.notifyClient
 }
 
-func MessageURL() string {
+func NotifyURL() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.messageURL
+	return instance.notifyURL
 }
 
 // used for test purposes only
@@ -328,17 +328,17 @@ func Reset() {
 		tracesAddress:   "localhost:4318",
 		metricsAddress:  "localhost:4318",
 		flagFormat:      "yaml",
-		fileClient:      "local",
-		fileClientDir:   ".",
-		fileClientFiles: []string{"/flags.yaml"},
-		fileClientToken: "",
-		fileInterval:    60,
-		createReports:   false,
-		reportClient:    "local",
-		reportClientDir: "/tmp",
-		reportInterval:  120,
-		messageClient:   "local",
-		messageURL:      "",
+		readClient:      "local",
+		readClientDir:   ".",
+		readClientFile:  "/flags.yaml",
+		readClientToken: "",
+		readInterval:    60,
+		exportReports:   false,
+		exportClient:    "local",
+		exportClientDir: "/tmp",
+		exportInterval:  120,
+		notifyClient:    "local",
+		notifyURL:       "",
 	}
 
 	once = sync.Once{}

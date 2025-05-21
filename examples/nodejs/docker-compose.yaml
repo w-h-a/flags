@@ -20,24 +20,24 @@ services:
 
   flags:
     container_name: flags
-    image: wesha/flags:1.8.1
+    image: wesha/flags:1.9.0
     command: server
     ports: 
       - '4000:4000'
     environment:
       - ENV=prod
       - NAME=flags
-      - VERSION=1.8.1
+      - VERSION=1.9.0
       - HTTP_ADDRESS=:4000
       - API_KEYS=myflagstoken
       - TRACES_ADDRESS=jaeger:4318
       - METRICS_ADDRESS=prometheus:9090
       - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/otlp/v1/metrics
       - FLAG_FORMAT=json
-      - FILE_CLIENT=local
-      - FILE_CLIENT_DIR=/nodejs
-      - FILE_CLIENT_FILES=/flags.json
-      - FILE_INTERVAL=30
+      - READ_CLIENT=local
+      - READ_CLIENT_DIR=/nodejs
+      - READ_CLIENT_FILE=/flags.json
+      - READ_INTERVAL=30
     volumes:
       - ./flags.json:/nodejs/flags.json
     depends_on:
