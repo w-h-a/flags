@@ -102,8 +102,7 @@ func TestFlagEval_YAML(t *testing.T) {
 	for _, test := range tests {
 		// env vars
 		os.Setenv("API_KEYS", tok)
-		os.Setenv("READ_CLIENT_DIR", dir)
-		os.Setenv("READ_CLIENT_FILES", "/flags.yaml")
+		os.Setenv("READ_CLIENT_LOCATION", dir+"/flags.yaml")
 
 		// config
 		config.New()
@@ -127,8 +126,7 @@ func TestFlagEval_YAML(t *testing.T) {
 
 		// clients
 		readClient := localreader.NewReader(
-			reader.WithDir(config.ReadClientDir()),
-			reader.WithFile(config.ReadClientFile()),
+			reader.WithLocation(config.ReadClientLocation()),
 		)
 
 		exportClient := localexporter.NewExporter(
@@ -260,8 +258,7 @@ func TestFlagEval_JSON(t *testing.T) {
 	for _, test := range tests {
 		// env vars
 		os.Setenv("API_KEYS", tok)
-		os.Setenv("READ_CLIENT_DIR", dir)
-		os.Setenv("READ_CLIENT_FILES", "/flags.json")
+		os.Setenv("READ_CLIENT_LOCATION", dir+"/flags.json")
 
 		// config
 		config.New()
@@ -285,8 +282,7 @@ func TestFlagEval_JSON(t *testing.T) {
 
 		// clients
 		readClient := localreader.NewReader(
-			reader.WithDir(config.ReadClientDir()),
-			reader.WithFile(config.ReadClientFile()),
+			reader.WithLocation(config.ReadClientLocation()),
 		)
 
 		exportClient := localexporter.NewExporter(

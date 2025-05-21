@@ -25,8 +25,7 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 	unit.SetLogger()
 
 	readClient := mockreader.NewReader(
-		reader.WithDir("any"),
-		reader.WithFile("any"),
+		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"hello": {},
@@ -89,8 +88,7 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 	unit.SetLogger()
 
 	readClient := mockreader.NewReader(
-		reader.WithDir("any"),
-		reader.WithFile("any"),
+		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"flag1": {
@@ -158,8 +156,7 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 	unit.SetLogger()
 
 	readClient := mockreader.NewReader(
-		reader.WithDir("any"),
-		reader.WithFile("any"),
+		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{},
 		),
@@ -223,8 +220,7 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 	unit.SetLogger()
 
 	readClient := mockreader.NewReader(
-		reader.WithDir("any"),
-		reader.WithFile("any"),
+		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
 				"flag1": {

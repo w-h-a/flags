@@ -13,49 +13,47 @@ var (
 )
 
 type config struct {
-	env             string
-	name            string
-	version         string
-	httpAddress     string
-	apiKeys         map[string]bool
-	tracesAddress   string
-	metricsAddress  string
-	flagFormat      string
-	readClient      string
-	readClientDir   string
-	readClientFile  string
-	readClientToken string
-	readInterval    int
-	exportReports   bool
-	exportClient    string
-	exportClientDir string
-	exportInterval  int
-	notifyClient    string
-	notifyURL       string
+	env                string
+	name               string
+	version            string
+	httpAddress        string
+	apiKeys            map[string]bool
+	tracesAddress      string
+	metricsAddress     string
+	flagFormat         string
+	readClient         string
+	readClientLocation string
+	readClientToken    string
+	readInterval       int
+	exportReports      bool
+	exportClient       string
+	exportClientDir    string
+	exportInterval     int
+	notifyClient       string
+	notifyURL          string
 }
 
 func New() {
 	once.Do(func() {
 		instance = &config{
-			env:             "dev",
-			name:            "flags",
-			version:         "0.1.0-alpha.0",
-			httpAddress:     ":0",
-			apiKeys:         map[string]bool{},
-			tracesAddress:   "localhost:4318",
-			metricsAddress:  "localhost:4318",
-			flagFormat:      "yaml",
-			readClient:      "local",
-			readClientDir:   ".",
-			readClientFile:  "/flags.yaml",
-			readClientToken: "",
-			readInterval:    60,
-			exportReports:   false,
-			exportClient:    "local",
-			exportClientDir: "/tmp",
-			exportInterval:  120,
-			notifyClient:    "local",
-			notifyURL:       "",
+			env:                "dev",
+			name:               "flags",
+			version:            "0.1.0-alpha.0",
+			httpAddress:        ":0",
+			apiKeys:            map[string]bool{},
+			tracesAddress:      "localhost:4318",
+			metricsAddress:     "localhost:4318",
+			flagFormat:         "yaml",
+			readClient:         "local",
+			readClientLocation: "./flags.yaml",
+			readClientToken:    "",
+			readInterval:       60,
+			exportReports:      false,
+			exportClient:       "local",
+			exportClientDir:    "/tmp",
+			exportInterval:     120,
+			notifyClient:       "local",
+			notifyURL:          "",
 		}
 
 		env := os.Getenv("ENV")
@@ -106,14 +104,9 @@ func New() {
 			instance.readClient = readClient
 		}
 
-		readClientDir := os.Getenv("READ_CLIENT_DIR")
-		if len(readClientDir) > 0 {
-			instance.readClientDir = readClientDir
-		}
-
-		readClientFile := os.Getenv("READ_CLIENT_FILE")
-		if len(readClientFile) > 0 {
-			instance.readClientFile = readClientFile
+		readClientLocation := os.Getenv("READ_CLIENT_LOCATION")
+		if len(readClientLocation) > 0 {
+			instance.readClientLocation = readClientLocation
 		}
 
 		readClientToken := os.Getenv("READ_CLIENT_TOKEN")
@@ -237,20 +230,12 @@ func ReadClient() string {
 	return instance.readClient
 }
 
-func ReadClientDir() string {
+func ReadClientLocation() string {
 	if instance == nil {
 		return ""
 	}
 
-	return instance.readClientDir
-}
-
-func ReadClientFile() string {
-	if instance == nil {
-		return ""
-	}
-
-	return instance.readClientFile
+	return instance.readClientLocation
 }
 
 func ReadClientToken() string {
@@ -320,25 +305,24 @@ func NotifyURL() string {
 // used for test purposes only
 func Reset() {
 	instance = &config{
-		env:             "dev",
-		name:            "flags",
-		version:         "0.1.0-alpha.0",
-		httpAddress:     ":0",
-		apiKeys:         map[string]bool{},
-		tracesAddress:   "localhost:4318",
-		metricsAddress:  "localhost:4318",
-		flagFormat:      "yaml",
-		readClient:      "local",
-		readClientDir:   ".",
-		readClientFile:  "/flags.yaml",
-		readClientToken: "",
-		readInterval:    60,
-		exportReports:   false,
-		exportClient:    "local",
-		exportClientDir: "/tmp",
-		exportInterval:  120,
-		notifyClient:    "local",
-		notifyURL:       "",
+		env:                "dev",
+		name:               "flags",
+		version:            "0.1.0-alpha.0",
+		httpAddress:        ":0",
+		apiKeys:            map[string]bool{},
+		tracesAddress:      "localhost:4318",
+		metricsAddress:     "localhost:4318",
+		flagFormat:         "yaml",
+		readClient:         "local",
+		readClientLocation: "./flags.yaml",
+		readClientToken:    "",
+		readInterval:       60,
+		exportReports:      false,
+		exportClient:       "local",
+		exportClientDir:    "/tmp",
+		exportInterval:     120,
+		notifyClient:       "local",
+		notifyURL:          "",
 	}
 
 	once = sync.Once{}
