@@ -20,10 +20,12 @@ type client struct {
 }
 
 func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
+	// Github location:
+	// https://api.github.com/repos/:owner/:repo/contents/:filePath?ref=main
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("https://api.github.com/repos/%s/contents/%s?ref=main", c.options.Dir, c.options.File),
+		c.options.Location,
 		strings.NewReader(""),
 	)
 	if err != nil {

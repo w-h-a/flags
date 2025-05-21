@@ -15,7 +15,7 @@ type client struct {
 }
 
 func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
-	bs, err := os.ReadFile(c.options.Dir + c.options.File)
+	bs, err := os.ReadFile(c.options.Location)
 	if err != nil {
 		return nil, err
 	}

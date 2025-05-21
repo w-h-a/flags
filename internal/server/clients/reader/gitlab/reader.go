@@ -20,10 +20,12 @@ type client struct {
 }
 
 func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
+	// Gitlab location:
+	// https://gitlab.com/api/v4/projects/:id/repository/files/:filePath/raw?ref=main
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("https://gitlab.com/api/v4/projects/%s/repository/files/%s/raw?ref=main", c.options.Dir, c.options.File),
+		c.options.Location,
 		strings.NewReader(""),
 	)
 	if err != nil {

@@ -215,20 +215,17 @@ func initReadClient() reader.Reader {
 	switch config.ReadClient() {
 	case "github":
 		return github.NewReader(
-			reader.WithDir(config.ReadClientDir()),
-			reader.WithFile(config.ReadClientFile()),
+			reader.WithLocation(config.ReadClientLocation()),
 			reader.WithToken(config.ReadClientToken()),
 		)
 	case "gitlab":
 		return gitlab.NewReader(
-			reader.WithDir(config.ReadClientDir()),
-			reader.WithFile(config.ReadClientFile()),
+			reader.WithLocation(config.ReadClientLocation()),
 			reader.WithToken(config.ReadClientToken()),
 		)
 	default:
 		return localreader.NewReader(
-			reader.WithDir(config.ReadClientDir()),
-			reader.WithFile(config.ReadClientFile()),
+			reader.WithLocation(config.ReadClientLocation()),
 		)
 	}
 }
