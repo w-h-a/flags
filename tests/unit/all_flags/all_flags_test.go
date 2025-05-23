@@ -15,6 +15,8 @@ import (
 	localnotifier "github.com/w-h-a/flags/internal/server/clients/notifier/local"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
 	localreader "github.com/w-h-a/flags/internal/server/clients/reader/local"
+	"github.com/w-h-a/flags/internal/server/clients/writer"
+	"github.com/w-h-a/flags/internal/server/clients/writer/noop"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -77,6 +79,10 @@ func TestAllFlags_YAML(t *testing.T) {
 		// metrics
 
 		// clients
+		writeClient := noop.NewWriter(
+			writer.WithLocation(config.WriteClientLocation()),
+		)
+
 		readClient := localreader.NewReader(
 			reader.WithLocation(config.ReadClientLocation()),
 		)
@@ -89,6 +95,7 @@ func TestAllFlags_YAML(t *testing.T) {
 
 		// servers
 		httpServer, _, exportService, notifyService, err := server.Factory(
+			writeClient,
 			readClient,
 			exportClient,
 			notifyClient,
@@ -185,6 +192,10 @@ func TestAllFlags_JSON(t *testing.T) {
 		// metrics
 
 		// clients
+		writeClient := noop.NewWriter(
+			writer.WithLocation(config.WriteClientLocation()),
+		)
+
 		readClient := localreader.NewReader(
 			reader.WithLocation(config.ReadClientLocation()),
 		)
@@ -197,6 +208,7 @@ func TestAllFlags_JSON(t *testing.T) {
 
 		// servers
 		httpServer, _, exportService, notifyService, err := server.Factory(
+			writeClient,
 			readClient,
 			exportClient,
 			notifyClient,

@@ -18,33 +18,58 @@ services:
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
 
+  postgres:
+    container_name: postgres
+    image: postgres:16
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=flags
+  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    ports:
+      - '8080:80'
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=postgres@postgres.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+    depends_on:
+      - postgres
+
   flags:
     container_name: flags
-    image: wesha/flags:1.10.0
+    build: .
     command: server
+    restart: on-failure:10
     ports: 
       - '4000:4000'
     environment:
       - ENV=prod
       - NAME=flags
-      - VERSION=1.10.0
+      - VERSION=0.1.0-alpha.0
       - HTTP_ADDRESS=:4000
       - API_KEYS=myflagstoken
       - TRACES_ADDRESS=jaeger:4318
       - METRICS_ADDRESS=prometheus:9090
       - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/otlp/v1/metrics
-      - FLAG_FORMAT=json
-      - READ_CLIENT=local
-      - READ_CLIENT_LOCATION=/nodejs/flags.json
-      - READ_INTERVAL=30
+      - FLAG_FORMAT=yaml
+      - WRITE_CLIENT=postgres
+      - WRITE_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
+      - READ_CLIENT=postgres
+      - READ_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
+      - READ_INTERVAL=10
     volumes:
       - ./flags.json:/nodejs/flags.json
     depends_on:
       - jaeger
       - prometheus
+      - postgres
 
   nodejs:
     container_name: nodejs
-    build: service/.
+    build: ./examples/nodejs/.
     depends_on:
       - flags

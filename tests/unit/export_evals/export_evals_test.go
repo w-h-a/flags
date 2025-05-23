@@ -19,7 +19,7 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("export")
 
 	exportClient := mock.NewExporter(
 		exporter.WithDir("any"),
@@ -74,7 +74,7 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("export")
 
 	exportClient := mock.NewExporter(
 		exporter.WithDir("any"),

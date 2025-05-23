@@ -26,7 +26,7 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flagState, err := o.cacheService.EvaluateFlag(flagKey)
+	flagState, err := o.cacheService.EvaluateFlag(r.Context(), flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
 		bs, err := json.Marshal(flagState)
 		if err != nil {
@@ -52,6 +52,7 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 			Variant:      flagState.Variant,
 			Reason:       flagState.Reason,
 			ErrorCode:    flagState.ErrorCode,
+			ErrorMessage: flagState.ErrorMessage,
 		}
 
 		o.exportService.Add(event)
@@ -70,7 +71,7 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func (o *OFREP) PostAll(w http.ResponseWriter, r *http.Request) {
-	flags := o.cacheService.EvaluateFlags()
+	flags := o.cacheService.EvaluateFlags(r.Context())
 
 	bs, err := json.Marshal(flags)
 	if err != nil {

@@ -7,4 +7,5 @@ type Record struct {
 	Variant      string `json:"variant,omitempty"`
 	Reason       string `json:"reason,omitempty"`
 	ErrorCode    string `json:"errorCode,omitempty"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
 }

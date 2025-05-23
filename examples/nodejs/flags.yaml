@@ -1,8 +1,0 @@
-new-feat:
-  disabled: false
-  variants:
-    default: false
-    new: true
-  rules:
-    - name: rule1
-      variant: new

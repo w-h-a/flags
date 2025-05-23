@@ -11,6 +11,7 @@ import (
 
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
+	"github.com/w-h-a/flags/internal/server/config"
 )
 
 var (
@@ -24,7 +25,7 @@ type Service struct {
 	mtx        sync.RWMutex
 }
 
-func (s *Service) EvaluateFlag(flagKey string) (FlagState, error) {
+func (s *Service) EvaluateFlag(ctx context.Context, flagKey string) (FlagState, error) {
 	var flag *flags.Flag
 	var ok bool
 
@@ -54,7 +55,7 @@ func (s *Service) EvaluateFlag(flagKey string) (FlagState, error) {
 	return result, nil
 }
 
-func (s *Service) EvaluateFlags() AllFlags {
+func (s *Service) EvaluateFlags(ctx context.Context) AllFlags {
 	flags := map[string]*flags.Flag{}
 
 	s.mtx.RLock()
@@ -82,7 +83,12 @@ func (s *Service) EvaluateFlags() AllFlags {
 }
 
 func (s *Service) RetrieveFlags() (map[string]*flags.Flag, map[string]*flags.Flag, error) {
-	new, err := s.readClient.Read(context.TODO())
+	bs, err := s.readClient.Read(context.TODO())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	new, err := flags.Factory(bs, config.FlagFormat())
 	if err != nil {
 		return nil, nil, err
 	}

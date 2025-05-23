@@ -8,6 +8,7 @@ import (
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
 	"github.com/w-h-a/pkg/telemetry/log"
+	"gopkg.in/yaml.v3"
 )
 
 type Client struct {
@@ -18,7 +19,11 @@ type Client struct {
 	mtx          sync.RWMutex
 }
 
-func (c *Client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
+func (c *Client) ReadByKey(ctx context.Context, key string) ([]byte, error) {
+	return nil, nil
+}
+
+func (c *Client) Read(ctx context.Context) ([]byte, error) {
 	c.mtx.RLock()
 
 	callCount := c.callCount
@@ -37,7 +42,7 @@ func (c *Client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
 	c.callCount++
 	c.mtx.Unlock()
 
-	return result, nil
+	return yaml.Marshal(result)
 }
 
 func (c *Client) CallCount() int {

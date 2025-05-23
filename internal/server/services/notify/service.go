@@ -38,11 +38,11 @@ func (s *Service) Close() {
 	s.waitGroup.Wait()
 }
 
-func (s *Service) diff(old, new map[string]*flags.Flag) notifier.Diff {
-	diff := notifier.Diff{
+func (s *Service) diff(old, new map[string]*flags.Flag) flags.Diff {
+	diff := flags.Diff{
 		Deleted: map[string]*flags.Flag{},
 		Added:   map[string]*flags.Flag{},
-		Updated: map[string]notifier.DiffUpdated{},
+		Updated: map[string]flags.DiffUpdated{},
 	}
 
 	for k := range old {
@@ -57,7 +57,7 @@ func (s *Service) diff(old, new map[string]*flags.Flag) notifier.Diff {
 
 		// if it's not equal, it needs to be shown as updated
 		if !cmp.Equal(of, nf) {
-			diff.Updated[k] = notifier.DiffUpdated{
+			diff.Updated[k] = flags.DiffUpdated{
 				Before: of,
 				After:  nf,
 			}

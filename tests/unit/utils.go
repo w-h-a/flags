@@ -6,11 +6,11 @@ import (
 	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
-func SetLogger() {
+func SetLogger(name string) {
 	logBuffer := memoryutils.NewBuffer()
 
 	logger := memorylog.NewLog(
-		log.LogWithPrefix("export"),
+		log.LogWithPrefix(name),
 		memorylog.LogWithBuffer(logBuffer),
 	)
 

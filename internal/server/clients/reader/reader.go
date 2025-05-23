@@ -2,10 +2,14 @@ package reader
 
 import (
 	"context"
+	"errors"
+)
 
-	"github.com/w-h-a/flags/internal/flags"
+var (
+	ErrRecordNotFound = errors.New("record not found")
 )
 
 type Reader interface {
-	Read(ctx context.Context) (map[string]*flags.Flag, error)
+	ReadByKey(ctx context.Context, key string) ([]byte, error)
+	Read(ctx context.Context) ([]byte, error)
 }
