@@ -20,9 +20,9 @@ var (
 )
 
 type Flag struct {
-	Disabled *bool           `json:"disabled" yaml:"disabled"`
-	Variants map[string]*any `json:"variants" yaml:"variants"`
-	Rules    []*Rule         `json:"rules" yaml:"rules"`
+	Disabled *bool          `json:"disabled" yaml:"disabled"`
+	Variants map[string]any `json:"variants" yaml:"variants"`
+	Rules    []*Rule        `json:"rules" yaml:"rules"`
 
 	DefaultRule *Rule
 }
@@ -77,7 +77,7 @@ func (f *Flag) IsDisabled() bool {
 func (f *Flag) value(name string) any {
 	for k, v := range f.Variants {
 		if k == name && v != nil {
-			return *v
+			return v
 		}
 	}
 
@@ -105,4 +105,19 @@ type ResolutionDetails struct {
 	Reason    string
 	RuleIndex int
 	RuleName  string
+}
+
+type Diff struct {
+	Deleted map[string]*Flag       `json:"deleted"`
+	Added   map[string]*Flag       `json:"added"`
+	Updated map[string]DiffUpdated `json:"updated"`
+}
+
+func (d *Diff) HasDiff() bool {
+	return len(d.Deleted) > 0 || len(d.Added) > 0 || len(d.Updated) > 0
+}
+
+type DiffUpdated struct {
+	Before *Flag `json:"old_value"`
+	After  *Flag `json:"new_value"`
 }

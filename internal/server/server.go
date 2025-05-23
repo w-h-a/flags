@@ -8,8 +8,10 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
+	"github.com/w-h-a/flags/internal/server/clients/writer"
 	"github.com/w-h-a/flags/internal/server/config"
 	httphandlers "github.com/w-h-a/flags/internal/server/handlers/http"
+	"github.com/w-h-a/flags/internal/server/services/admin"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/export"
 	"github.com/w-h-a/flags/internal/server/services/notify"
@@ -21,11 +23,13 @@ import (
 )
 
 func Factory(
+	writeClient writer.Writer,
 	readClient reader.Reader,
 	exportClient exporter.Exporter,
 	notifyClient notifier.Notifier,
 ) (serverv2.Server, *cache.Service, *export.Service, *notify.Service, error) {
 	// services
+	adminService := admin.New(writeClient, readClient)
 	cacheService := cache.New(readClient)
 	exportService := export.New(exportClient)
 	notifyService := notify.New(notifyClient)
@@ -46,6 +50,13 @@ func Factory(
 
 	// create http server
 	router := mux.NewRouter()
+
+	httpAdmin := httphandlers.NewAdminHandler(adminService)
+
+	router.Methods(http.MethodGet).Path("/admin/v1/flags/{key}").HandlerFunc(httpAdmin.GetOne)
+	router.Methods(http.MethodGet).Path("/admin/v1/flags").HandlerFunc(httpAdmin.GetAll)
+	router.Methods(http.MethodPut).Path("/admin/v1/flags").HandlerFunc(httpAdmin.PutOne)
+	router.Methods(http.MethodPatch).Path("/admin/v1/flags/{key}").HandlerFunc(httpAdmin.PatchOne)
 
 	httpOFREP := httphandlers.NewOFREPHandler(cacheService, exportService)
 

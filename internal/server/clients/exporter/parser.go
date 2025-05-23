@@ -10,7 +10,7 @@ import (
 
 const (
 	FilenameTemplate = "flag-evaluation-{{ .Timestamp }}.{{ .Format }}"
-	CsvTemplate      = "{{ .CreationDate }};{{ .Key }};{{ .Value }};{{ .Variant }};{{ .Reason }};{{ .ErrorCode }}\n"
+	CsvTemplate      = "{{ .CreationDate }};{{ .Key }};{{ .Value }};{{ .Variant }};{{ .Reason }};{{ .ErrorCode }};{{ .ErrorMessage }}\n"
 )
 
 type Parser struct {

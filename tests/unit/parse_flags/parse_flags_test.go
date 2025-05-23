@@ -15,7 +15,7 @@ func TestParseFlags(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("parse")
 
 	tests := []struct {
 		name     string

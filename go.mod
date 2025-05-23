@@ -6,12 +6,14 @@ require (
 	github.com/gdexlab/go-render v1.0.1
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/mux v1.8.1
+	github.com/lib/pq v1.10.9
 	github.com/open-feature/go-sdk v1.14.1
 	github.com/open-feature/go-sdk-contrib/providers/ofrep v0.1.5
 	github.com/r3labs/diff/v3 v3.0.1
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.6
 	github.com/w-h-a/pkg v0.40.0
+	go.nhat.io/otelsql v0.15.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.60.0

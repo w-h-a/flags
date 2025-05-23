@@ -11,6 +11,7 @@ import (
 
 	"github.com/gdexlab/go-render/render"
 	difflib "github.com/r3labs/diff/v3"
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
@@ -26,7 +27,7 @@ type client struct {
 	httpClient *http.Client
 }
 
-func (c *client) Notify(ctx context.Context, diff notifier.Diff) error {
+func (c *client) Notify(ctx context.Context, diff flags.Diff) error {
 	msg := c.convert(diff)
 
 	bs, err := json.Marshal(msg)
@@ -60,7 +61,7 @@ func (c *client) Notify(ctx context.Context, diff notifier.Diff) error {
 	return nil
 }
 
-func (c *client) convert(diff notifier.Diff) slackMessage {
+func (c *client) convert(diff flags.Diff) slackMessage {
 	attachments := c.convertDeleted(diff)
 	attachments = append(attachments, c.convertAdded(diff)...)
 	attachments = append(attachments, c.convertUpdated(diff)...)
@@ -73,7 +74,7 @@ func (c *client) convert(diff notifier.Diff) slackMessage {
 	return result
 }
 
-func (c *client) convertDeleted(diff notifier.Diff) []attachment {
+func (c *client) convertDeleted(diff flags.Diff) []attachment {
 	attachments := []attachment{}
 
 	emoji := "😵"
@@ -90,7 +91,7 @@ func (c *client) convertDeleted(diff notifier.Diff) []attachment {
 	return attachments
 }
 
-func (c *client) convertAdded(diff notifier.Diff) []attachment {
+func (c *client) convertAdded(diff flags.Diff) []attachment {
 	attachments := []attachment{}
 
 	emoji := "🥳"
@@ -107,7 +108,7 @@ func (c *client) convertAdded(diff notifier.Diff) []attachment {
 	return attachments
 }
 
-func (c *client) convertUpdated(diff notifier.Diff) []attachment {
+func (c *client) convertUpdated(diff flags.Diff) []attachment {
 	attachments := []attachment{}
 
 	emoji := "✏️"

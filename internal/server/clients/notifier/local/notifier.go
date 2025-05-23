@@ -3,6 +3,7 @@ package local
 import (
 	"context"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
@@ -11,7 +12,7 @@ type client struct {
 	options notifier.Options
 }
 
-func (c *client) Notify(ctx context.Context, diff notifier.Diff) error {
+func (c *client) Notify(ctx context.Context, diff flags.Diff) error {
 	for k := range diff.Deleted {
 		log.Infof("flag %v removed", k)
 	}

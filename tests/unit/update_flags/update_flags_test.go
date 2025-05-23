@@ -22,18 +22,26 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
 			map[string]*flags.Flag{
-				"hello": {},
+				"hello": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
-				"hello": {},
+				"hello": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 	)
@@ -85,7 +93,7 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
@@ -93,6 +101,9 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(true),
+					Variants: map[string]any{
+						"default": "default",
+					},
 				},
 			},
 		),
@@ -100,8 +111,15 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
+					Variants: map[string]any{
+						"default": "default",
+					},
 				},
-				"flag2": {},
+				"flag2": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 	)
@@ -153,7 +171,7 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
@@ -164,8 +182,15 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
+					Variants: map[string]any{
+						"default": "default",
+					},
 				},
-				"flag2": {},
+				"flag2": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 	)
@@ -217,7 +242,7 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger()
+	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
@@ -225,13 +250,24 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 			map[string]*flags.Flag{
 				"flag1": {
 					Disabled: unit.Bool(false),
+					Variants: map[string]any{
+						"default": "default",
+					},
 				},
-				"flag2": {},
+				"flag2": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 		mockreader.WithUpdatedFlags(
 			map[string]*flags.Flag{
-				"flag2": {},
+				"flag2": {
+					Variants: map[string]any{
+						"default": "default",
+					},
+				},
 			},
 		),
 	)

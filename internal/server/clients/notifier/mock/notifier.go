@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
 )
 
@@ -13,7 +14,7 @@ type Client struct {
 	mtx       sync.RWMutex
 }
 
-func (c *Client) Notify(ctx context.Context, diff notifier.Diff) error {
+func (c *Client) Notify(ctx context.Context, diff flags.Diff) error {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 

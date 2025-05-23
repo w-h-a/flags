@@ -16,6 +16,10 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/reader/github"
 	"github.com/w-h-a/flags/internal/server/clients/reader/gitlab"
 	localreader "github.com/w-h-a/flags/internal/server/clients/reader/local"
+	postgresreader "github.com/w-h-a/flags/internal/server/clients/reader/postgres"
+	"github.com/w-h-a/flags/internal/server/clients/writer"
+	"github.com/w-h-a/flags/internal/server/clients/writer/noop"
+	postgreswriter "github.com/w-h-a/flags/internal/server/clients/writer/postgres"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
@@ -132,12 +136,13 @@ func Server(ctx *cli.Context) error {
 	}
 
 	// clients
+	writeClient := initWriteClient()
 	readClient := initReadClient()
 	exportClient := initExportClient()
 	notifyClient := initNotifyClient()
 
 	// server + services
-	httpServer, cacheService, exportService, notifyService, err := server.Factory(readClient, exportClient, notifyClient)
+	httpServer, cacheService, exportService, notifyService, err := server.Factory(writeClient, readClient, exportClient, notifyClient)
 	if err != nil {
 		return err
 	}
@@ -211,6 +216,19 @@ func Server(ctx *cli.Context) error {
 	return nil
 }
 
+func initWriteClient() writer.Writer {
+	switch config.WriteClient() {
+	case "postgres":
+		return postgreswriter.NewWriter(
+			writer.WithLocation(config.WriteClientLocation()),
+		)
+	default:
+		return noop.NewWriter(
+			writer.WithLocation(config.WriteClientLocation()),
+		)
+	}
+}
+
 func initReadClient() reader.Reader {
 	switch config.ReadClient() {
 	case "github":
@@ -222,6 +240,10 @@ func initReadClient() reader.Reader {
 		return gitlab.NewReader(
 			reader.WithLocation(config.ReadClientLocation()),
 			reader.WithToken(config.ReadClientToken()),
+		)
+	case "postgres":
+		return postgresreader.NewReader(
+			reader.WithLocation(config.ReadClientLocation()),
 		)
 	default:
 		return localreader.NewReader(

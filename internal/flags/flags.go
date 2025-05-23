@@ -89,7 +89,7 @@ func Factory(bs []byte, format string) (map[string]*Flag, error) {
 	return flags, nil
 }
 
-func parseRule(rule *Rule, variants map[string]*any) error {
+func parseRule(rule *Rule, variants map[string]any) error {
 	if len(rule.Name) == 0 {
 		return fmt.Errorf("rule missing name")
 	}
@@ -110,10 +110,8 @@ func parseRule(rule *Rule, variants map[string]*any) error {
 	return nil
 }
 
-func extractVariantType(variant *any) (string, error) {
-	v := (*variant)
-
-	switch v.(type) {
+func extractVariantType(variant any) (string, error) {
+	switch variant.(type) {
 	case int, float64:
 		return "number", nil
 	case bool:
@@ -121,6 +119,6 @@ func extractVariantType(variant *any) (string, error) {
 	case string:
 		return "string", nil
 	default:
-		return "", fmt.Errorf("flag value %+v is not supported", v)
+		return "", fmt.Errorf("flag value %+v is not supported", variant)
 	}
 }

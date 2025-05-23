@@ -8,9 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
-	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
@@ -19,7 +17,11 @@ type client struct {
 	httpClient *http.Client
 }
 
-func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
+func (c *client) ReadByKey(ctx context.Context, key string) ([]byte, error) {
+	return nil, nil
+}
+
+func (c *client) Read(ctx context.Context) ([]byte, error) {
 	// Github location:
 	// https://api.github.com/repos/:owner/:repo/contents/:filePath?ref=main
 	req, err := http.NewRequestWithContext(
@@ -49,12 +51,7 @@ func (c *client) Read(ctx context.Context) (map[string]*flags.Flag, error) {
 		return nil, fmt.Errorf("received status code %d from github", rsp.StatusCode)
 	}
 
-	bs, err := io.ReadAll(rsp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read body from github: %v", err)
-	}
-
-	return flags.Factory(bs, config.FlagFormat())
+	return io.ReadAll(rsp.Body)
 }
 
 func NewReader(opts ...reader.Option) reader.Reader {
