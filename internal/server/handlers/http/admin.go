@@ -23,16 +23,22 @@ func (a *Admin) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Admin) PutOne(w http.ResponseWriter, r *http.Request) {
-	flag, err := a.parser.ParsePutOneBody(r.Context(), r)
+	ctx := RequestToContext(r)
+
+	flag, err := a.parser.ParsePutOneBody(ctx, r)
 	if err != nil {
+		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "error: %v", err)
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
 	if len(flag) != 1 {
+		bs, _ := json.Marshal(map[string]any{"error": "body does not contain exactly one flag"})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "error: body does not contain exactly one flag")
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
@@ -44,28 +50,26 @@ func (a *Admin) PutOne(w http.ResponseWriter, r *http.Request) {
 
 	found := true
 
-	if _, err := a.adminService.RetrieveFlag(r.Context(), flagKey); err != nil && errors.Is(err, admin.ErrNotFound) {
+	if _, err := a.adminService.RetrieveFlag(ctx, flagKey); err != nil && errors.Is(err, admin.ErrNotFound) {
 		found = false
 	} else if err != nil {
+		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
-	upserted, err := a.adminService.UpsertFlag(r.Context(), flagKey, flag)
+	upserted, err := a.adminService.UpsertFlag(ctx, flagKey, flag)
 	if err != nil {
+		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
-	bs, err := json.Marshal(upserted)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-
+	bs, _ := json.Marshal(upserted)
 	w.Header().Set("content-type", "application/json")
 	if found {
 		w.WriteHeader(http.StatusOK)

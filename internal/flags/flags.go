@@ -23,10 +23,14 @@ func Factory(bs []byte, format string) (map[string]*Flag, error) {
 		return nil, err
 	}
 
-	for _, flag := range flags {
-		// sanity check
+	for k, flag := range flags {
+		// sanity checks
 		if flag == nil {
 			return nil, fmt.Errorf("nil flag")
+		}
+
+		if len(k) == 0 {
+			return nil, fmt.Errorf("flag missing key")
 		}
 
 		// add the default

@@ -142,7 +142,12 @@ func Server(ctx *cli.Context) error {
 	notifyClient := initNotifyClient()
 
 	// server + services
-	httpServer, cacheService, exportService, notifyService, err := server.Factory(writeClient, readClient, exportClient, notifyClient)
+	httpServer, cacheService, exportService, notifyService, err := server.Factory(
+		writeClient,
+		readClient,
+		exportClient,
+		notifyClient,
+	)
 	if err != nil {
 		return err
 	}

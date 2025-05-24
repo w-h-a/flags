@@ -26,6 +26,8 @@ func (s *Service) RetrieveFlag(ctx context.Context, key string) (map[string]*fla
 	bs, err := s.readClient.ReadByKey(ctx, key)
 	if err != nil && errors.Is(err, reader.ErrRecordNotFound) {
 		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
 	}
 
 	return flags.Factory(bs, config.FlagFormat())
