@@ -1,6 +1,7 @@
 package unit
 
 import (
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/pkg/telemetry/log"
 	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
 	"github.com/w-h-a/pkg/utils/memoryutils"
@@ -15,6 +16,37 @@ func SetLogger(name string) {
 	)
 
 	log.SetLogger(logger)
+}
+
+func DefaultFlags() map[string]*flags.Flag {
+	return map[string]*flags.Flag{
+		"flag1": {
+			Disabled: Bool(false),
+			Variants: map[string]any{
+				"default":  "A",
+				"variant2": "B",
+			},
+			Rules: []*flags.Rule{
+				{
+					Name:    "rule1",
+					Variant: "variant2",
+				},
+			},
+		},
+		"flag2": {
+			Disabled: Bool(false),
+			Variants: map[string]any{
+				"default":  "A",
+				"variant2": "B",
+			},
+			Rules: []*flags.Rule{
+				{
+					Name:    "rule1",
+					Variant: "variant2",
+				},
+			},
+		},
+	}
 }
 
 func Bool(v bool) *bool {

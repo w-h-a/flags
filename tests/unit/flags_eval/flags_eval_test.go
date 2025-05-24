@@ -1,4 +1,4 @@
-package allflags
+package flagseval
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func TestAllFlags_YAML(t *testing.T) {
 			name: "valid flags",
 			want: want{
 				httpCode: http.StatusOK,
-				bodyFile: "../testdata/all_flags/valid_response.json",
+				bodyFile: "../testdata/flags_eval/valid_response.json",
 			},
 		},
 	}
@@ -161,7 +161,7 @@ func TestAllFlags_JSON(t *testing.T) {
 			name: "valid flags",
 			want: want{
 				httpCode: http.StatusOK,
-				bodyFile: "../testdata/all_flags/valid_response.json",
+				bodyFile: "../testdata/flags_eval/valid_response.json",
 			},
 		},
 	}

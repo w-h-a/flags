@@ -19,28 +19,29 @@ type OFREP struct {
 }
 
 func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
-	flagKey, err := o.parser.ParseFlagKey(r.Context(), r)
+	ctx := RequestToContext(r)
+
+	flagKey, err := o.parser.ParseFlagKey(ctx, r)
 	if err != nil {
+		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "error: %v", err)
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
-	flagState, err := o.cacheService.EvaluateFlag(r.Context(), flagKey)
+	flagState, err := o.cacheService.EvaluateFlag(ctx, flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
-		bs, err := json.Marshal(flagState)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "error: %v", err)
-			return
-		}
+		bs, _ := json.Marshal(flagState)
 		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, string(bs))
 		return
 	} else if err != nil {
+		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
@@ -58,28 +59,18 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 		o.exportService.Add(event)
 	}
 
-	bs, err := json.Marshal(flagState)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-
+	bs, _ := json.Marshal(flagState)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(bs))
 }
 
 func (o *OFREP) PostAll(w http.ResponseWriter, r *http.Request) {
-	flags := o.cacheService.EvaluateFlags(r.Context())
+	ctx := RequestToContext(r)
 
-	bs, err := json.Marshal(flags)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
+	flags := o.cacheService.EvaluateFlags(ctx)
 
+	bs, _ := json.Marshal(flags)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(bs))
@@ -100,13 +91,7 @@ func (o *OFREP) GetConfig(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	bs, err := json.Marshal(rsp)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-
+	bs, _ := json.Marshal(rsp)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(bs))

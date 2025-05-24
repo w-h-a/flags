@@ -24,7 +24,7 @@ type Flag struct {
 	Variants map[string]any `json:"variants" yaml:"variants"`
 	Rules    []*Rule        `json:"rules" yaml:"rules"`
 
-	DefaultRule *Rule
+	DefaultRule *Rule `json:"-" yaml:"-"`
 }
 
 func (f *Flag) Evaluate() (any, ResolutionDetails) {

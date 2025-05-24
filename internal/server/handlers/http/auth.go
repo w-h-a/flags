@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -28,16 +29,20 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("authorization")
 	if len(authHeader) > 0 {
 		if !strings.HasPrefix(authHeader, BearerScheme) {
+			bs, _ := json.Marshal(map[string]any{"error": "not authenticated"})
+			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, "not authenticated")
+			fmt.Fprint(w, string(bs))
 			return
 		}
 		token = authHeader[len(BearerScheme):]
 	}
 
 	if !config.CheckAPIKey(token) {
+		bs, _ := json.Marshal(map[string]any{"error": "not authenticated"})
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintf(w, "not authenticated")
+		fmt.Fprint(w, string(bs))
 		return
 	}
 
