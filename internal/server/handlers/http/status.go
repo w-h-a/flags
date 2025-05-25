@@ -1,8 +1,6 @@
 package http
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/w-h-a/flags/internal/server/config"
@@ -21,16 +19,7 @@ func (s *Status) GetStatus(w http.ResponseWriter, r *http.Request) {
 		"lastUpdate": s.cacheService.LastUpdate(),
 	}
 
-	bs, err := json.Marshal(status)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "error: %v", err)
-		return
-	}
-
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(bs))
+	writeRsp(w, http.StatusOK, status)
 }
 
 func NewStatusHandler(cacheService *cache.Service) *Status {

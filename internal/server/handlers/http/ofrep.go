@@ -1,9 +1,7 @@
 package http
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -19,29 +17,20 @@ type OFREP struct {
 }
 
 func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
-	ctx := RequestToContext(r)
+	ctx := reqToCtx(r)
 
 	flagKey, err := o.parser.ParseFlagKey(ctx, r)
 	if err != nil {
-		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
-		w.Header().Set("content-type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, string(bs))
+		writeRsp(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
 		return
 	}
 
 	flagState, err := o.cacheService.EvaluateFlag(ctx, flagKey)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
-		bs, _ := json.Marshal(flagState)
-		w.Header().Set("content-type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, string(bs))
+		writeRsp(w, http.StatusNotFound, flagState)
 		return
 	} else if err != nil {
-		bs, _ := json.Marshal(map[string]any{"error": err.Error()})
-		w.Header().Set("content-type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, string(bs))
+		writeRsp(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
 		return
 	}
 
@@ -59,21 +48,15 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 		o.exportService.Add(event)
 	}
 
-	bs, _ := json.Marshal(flagState)
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(bs))
+	writeRsp(w, http.StatusOK, flagState)
 }
 
 func (o *OFREP) PostAll(w http.ResponseWriter, r *http.Request) {
-	ctx := RequestToContext(r)
+	ctx := reqToCtx(r)
 
 	flags := o.cacheService.EvaluateFlags(ctx)
 
-	bs, _ := json.Marshal(flags)
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(bs))
+	writeRsp(w, http.StatusOK, flags)
 }
 
 func (o *OFREP) GetConfig(w http.ResponseWriter, r *http.Request) {
@@ -91,10 +74,7 @@ func (o *OFREP) GetConfig(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	bs, _ := json.Marshal(rsp)
-	w.Header().Set("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(bs))
+	writeRsp(w, http.StatusOK, rsp)
 }
 
 func NewOFREPHandler(

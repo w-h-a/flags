@@ -121,3 +121,7 @@ type DiffUpdated struct {
 	Before *Flag `json:"old_value"`
 	After  *Flag `json:"new_value"`
 }
+
+type DisabledPatch struct {
+	Disabled *bool `json:"disabled"`
+}
