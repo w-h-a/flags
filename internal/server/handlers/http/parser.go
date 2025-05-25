@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,4 +35,25 @@ func (p *Parser) ParsePutOneBody(ctx context.Context, r *http.Request) (map[stri
 	defer r.Body.Close()
 
 	return flags.Factory(bs, "json")
+}
+
+func (p *Parser) ParsePatchOneBody(ctx context.Context, r *http.Request) (*flags.DisabledPatch, error) {
+	bs, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	defer r.Body.Close()
+
+	var disabledPatch *flags.DisabledPatch
+
+	if err := json.Unmarshal(bs, &disabledPatch); err != nil {
+		return nil, err
+	}
+
+	if disabledPatch.Disabled == nil {
+		return nil, fmt.Errorf("body missing `disabled` boolean key")
+	}
+
+	return disabledPatch, nil
 }

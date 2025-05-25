@@ -9,7 +9,8 @@ import (
 )
 
 func Factory(bs []byte, format string) (map[string]*Flag, error) {
-	var flags map[string]*Flag
+	flags := map[string]*Flag{}
+
 	var err error
 
 	switch strings.ToLower(format) {

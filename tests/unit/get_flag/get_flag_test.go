@@ -1,13 +1,12 @@
-package upsertflag
+package getflag
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -30,7 +29,7 @@ const (
 	tok = "mytoken"
 )
 
-func TestUpsertFlag(t *testing.T) {
+func TestGetFlag(t *testing.T) {
 	if len(os.Getenv("INTEGRATION")) > 0 {
 		t.Log("SKIPPING UNIT TEST")
 		return
@@ -38,7 +37,7 @@ func TestUpsertFlag(t *testing.T) {
 
 	type inputs struct {
 		flags        map[string]*flags.Flag
-		upserted     map[string]*flags.Flag
+		key          string
 		unauthorized bool
 		headers      map[string]string
 	}
@@ -54,137 +53,34 @@ func TestUpsertFlag(t *testing.T) {
 		want   want
 	}{
 		{
-			name: "201 for created",
+			name: "200 if found",
 			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"flag3": {
-						Disabled: unit.Bool(true),
-						Variants: map[string]any{
-							"default":  "A",
-							"variant2": "B",
-						},
-						Rules: []*flags.Rule{
-							{
-								Name:    "rule1",
-								Variant: "variant2",
-							},
-						},
-					},
-				},
+				flags:   unit.DefaultFlags(),
+				key:     "flag2",
 				headers: map[string]string{},
-			},
-			want: want{
-				httpCode: http.StatusCreated,
-				bodyFile: "../testdata/upsert_flag/valid_response_created.json",
-			},
-		},
-		{
-			name: "200 for updated",
-			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"flag2": {
-						Disabled: unit.Bool(false),
-						Variants: map[string]any{
-							"default":  "A",
-							"variant2": "B",
-							"variant3": "C",
-						},
-						Rules: []*flags.Rule{
-							{
-								Name:    "rule1",
-								Variant: "variant3",
-							},
-						},
-					},
-				},
 			},
 			want: want{
 				httpCode: http.StatusOK,
-				bodyFile: "../testdata/upsert_flag/valid_response_updated.json",
+				bodyFile: "../testdata/get_flag/valid_response_flag2.json",
 			},
 		},
 		{
-			name: "400 for missing flag key",
+			name: "404 if not found",
 			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"": {
-						Variants: map[string]any{
-							"default": "A",
-						},
-					},
-				},
+				flags:   unit.DefaultFlags(),
+				key:     "flag99",
 				headers: map[string]string{},
 			},
 			want: want{
-				httpCode: http.StatusBadRequest,
-				bodyFile: "../testdata/upsert_flag/no_name_flag.json",
+				httpCode: http.StatusNotFound,
+				bodyFile: "../testdata/not_found.json",
 			},
 		},
 		{
-			name: "400 for no variants",
+			name: "500 if error",
 			inputs: inputs{
 				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"flag2": {
-						Variants: map[string]any{},
-					},
-				},
-				headers: map[string]string{},
-			},
-			want: want{
-				httpCode: http.StatusBadRequest,
-				bodyFile: "../testdata/upsert_flag/no_variants.json",
-			},
-		},
-		{
-			name: "400 for no flag",
-			inputs: inputs{
-				flags:    unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{},
-				headers:  map[string]string{},
-			},
-			want: want{
-				httpCode: http.StatusBadRequest,
-				bodyFile: "../testdata/upsert_flag/not_exactly_one.json",
-			},
-		},
-		{
-			name: "400 for more than 1 flag",
-			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"flag2": {
-						Variants: map[string]any{
-							"default": "A",
-						},
-					},
-					"flag3": {
-						Variants: map[string]any{
-							"default": "A",
-						},
-					},
-				},
-				headers: map[string]string{},
-			},
-			want: want{
-				httpCode: http.StatusBadRequest,
-				bodyFile: "../testdata/upsert_flag/not_exactly_one.json",
-			},
-		},
-		{
-			name: "500 for read by key error that is not a NOT FOUND",
-			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"new-flag": {
-						Variants: map[string]any{
-							"default": "A",
-						},
-					},
-				},
+				key:   "flag2",
 				headers: map[string]string{
 					"error_read_by_key": "failed to read by key",
 				},
@@ -192,26 +88,6 @@ func TestUpsertFlag(t *testing.T) {
 			want: want{
 				httpCode: http.StatusInternalServerError,
 				bodyFile: "../testdata/read_by_key_error.json",
-			},
-		},
-		{
-			name: "500 for write error",
-			inputs: inputs{
-				flags: unit.DefaultFlags(),
-				upserted: map[string]*flags.Flag{
-					"new-flag": {
-						Variants: map[string]any{
-							"default": "A",
-						},
-					},
-				},
-				headers: map[string]string{
-					"error_write": "failed to write",
-				},
-			},
-			want: want{
-				httpCode: http.StatusInternalServerError,
-				bodyFile: "../testdata/write_error.json",
 			},
 		},
 		{
@@ -289,13 +165,10 @@ func TestUpsertFlag(t *testing.T) {
 			err = httpServer.Run()
 			require.NoError(t, err)
 
-			bs, err := json.Marshal(test.inputs.upserted)
-			require.NoError(t, err)
-
 			req, err := http.NewRequest(
-				http.MethodPut,
-				fmt.Sprintf("http://%s%s", httpServer.Options().Address, "/admin/v1/flags"),
-				bytes.NewReader(bs),
+				http.MethodGet,
+				fmt.Sprintf("http://%s%s%s", httpServer.Options().Address, "/admin/v1/flags", "/"+test.inputs.key),
+				strings.NewReader(""),
 			)
 			require.NoError(t, err)
 

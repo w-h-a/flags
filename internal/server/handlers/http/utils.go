@@ -2,11 +2,13 @@ package http
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 )
 
-func RequestToContext(r *http.Request) context.Context {
+func reqToCtx(r *http.Request) context.Context {
 	ctx := r.Context()
 
 	for k, v := range r.Header {
@@ -14,4 +16,11 @@ func RequestToContext(r *http.Request) context.Context {
 	}
 
 	return ctx
+}
+
+func writeRsp(w http.ResponseWriter, code int, body any) {
+	bs, _ := json.Marshal(body)
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(code)
+	fmt.Fprint(w, string(bs))
 }

@@ -27,17 +27,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=flags
-  
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    ports:
-      - '8080:80'
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=postgres@postgres.com
-      - PGADMIN_DEFAULT_PASSWORD=postgres
-    depends_on:
-      - postgres
+
 
   flags:
     container_name: flags

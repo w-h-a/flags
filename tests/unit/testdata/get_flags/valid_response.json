@@ -1,0 +1,1 @@
+{"flag1":{"disabled":false,"variants":{"default":"A","variant2":"B"},"rules":[{"name":"rule1","variant":"variant2"}]},"flag2":{"disabled":false,"variants":{"default":"A","variant2":"B"},"rules":[{"name":"rule1","variant":"variant2"}]}}
