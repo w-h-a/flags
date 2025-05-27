@@ -39,7 +39,7 @@ type client struct {
 func (c *client) ReadByKey(ctx context.Context, key string) ([]byte, error) {
 	row := c.readOne.QueryRowContext(ctx, key)
 
-	record := &record{}
+	record := &reader.Record{}
 
 	if err := row.Scan(&record.Key, &record.Value); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -59,10 +59,10 @@ func (c *client) Read(ctx context.Context) ([]byte, error) {
 
 	defer rows.Close()
 
-	records := []*record{}
+	records := []*reader.Record{}
 
 	for rows.Next() {
-		record := &record{}
+		record := &reader.Record{}
 
 		if err := rows.Scan(&record.Key, &record.Value); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

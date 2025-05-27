@@ -1,12 +1,14 @@
 const { OpenFeature } = require("@openfeature/server-sdk");
 const { OFREPProvider } = require("@openfeature/ofrep-provider");
 
+const tok = "mytoken"
+
 describe("bool", () => {
     const tests = [
         {
             name: "resolve a boolean flag with TARGETING_MATCH reason",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "bool_targeting_match",
                 defaultValue: false,
                 evalCtx: { targetingKey: "" }
@@ -22,7 +24,7 @@ describe("bool", () => {
         {
             name: "resolve with DEFAULT reson",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "default_bool",
                 defaultValue: true,
                 evalCtx: { targetingKey: "" }
@@ -38,7 +40,7 @@ describe("bool", () => {
         {
             name: "use default if the flag is disabled",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_bool",
                 defaultValue: false,
                 evalCtx: { targetingKey: "" }
@@ -54,7 +56,7 @@ describe("bool", () => {
         {
             name: "use default if the flag is disabled 2",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_bool_2",
                 defaultValue: false,
                 evalCtx: { targetingKey: "" }
@@ -70,7 +72,7 @@ describe("bool", () => {
         {
             name: "error if we expect a boolean but get another type",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "string_targeting_match",
                 defaultValue: false,
                 evalCtx: { targetingKey: "" }
@@ -87,7 +89,7 @@ describe("bool", () => {
         {
             name: "error if there is no flag",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "no_such_flag",
                 defaultValue: false,
                 evalCtx: { targetingKey: "" }
@@ -163,7 +165,7 @@ describe("float", () => {
         {
             name: "resolve a float flag with TARGETING_MATCH reason",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "float_targeting_match",
                 defaultValue: 0.0,
                 evalCtx: { targetingKey: "" }
@@ -179,7 +181,7 @@ describe("float", () => {
         {
             name: "resolve with DEFAULT reson",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "default_float",
                 defaultValue: 0,
                 evalCtx: { targetingKey: "" }
@@ -195,7 +197,7 @@ describe("float", () => {
         {
             name: "use default if the flag is disabled",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_float",
                 defaultValue: 100.25,
                 evalCtx: { targetingKey: "" }
@@ -211,7 +213,7 @@ describe("float", () => {
         {
             name: "use default if the flag is disabled 2",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_float_2",
                 defaultValue: 100.25,
                 evalCtx: { targetingKey: "" }
@@ -227,7 +229,7 @@ describe("float", () => {
         {
             name: "error if we expect a float but get another type",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "string_targeting_match",
                 defaultValue: 0.0,
                 evalCtx: { targetingKey: "" }
@@ -244,7 +246,7 @@ describe("float", () => {
         {
             name: "error if there is no flag",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "no_such_flag",
                 defaultValue: 0.0,
                 evalCtx: { targetingKey: "" }
@@ -320,7 +322,7 @@ describe("integer", () => {
         {
             name: "resolve an integer flag with TARGETING_MATCH reason",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "int_targeting_match",
                 defaultValue: 0,
                 evalCtx: { targetingKey: "" }
@@ -336,7 +338,7 @@ describe("integer", () => {
         {
             name: "resolve with DEFAULT reson",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "default_int",
                 defaultValue: 0,
                 evalCtx: { targetingKey: "" }
@@ -352,7 +354,7 @@ describe("integer", () => {
         {
             name: "use default if the flag is disabled",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_int",
                 defaultValue: 100,
                 evalCtx: { targetingKey: "" }
@@ -368,7 +370,7 @@ describe("integer", () => {
         {
             name: "use default if the flag is disabled 2",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_int_2",
                 defaultValue: 100,
                 evalCtx: { targetingKey: "" }
@@ -384,7 +386,7 @@ describe("integer", () => {
         {
             name: "error if we expect a integer but get another type",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "string_targeting_match",
                 defaultValue: 0,
                 evalCtx: { targetingKey: "" }
@@ -401,7 +403,7 @@ describe("integer", () => {
         {
             name: "error if there is no flag",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "no_such_flag",
                 defaultValue: 0,
                 evalCtx: { targetingKey: "" }
@@ -477,7 +479,7 @@ describe("string", () => {
         {
             name: "resolve a string flag with TARGETING_MATCH reason",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "string_targeting_match",
                 defaultValue: "",
                 evalCtx: { targetingKey: "" }
@@ -493,7 +495,7 @@ describe("string", () => {
         {
             name: "resolve with DEFAULT reson",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "default_string",
                 defaultValue: "",
                 evalCtx: { targetingKey: "" }
@@ -509,7 +511,7 @@ describe("string", () => {
         {
             name: "use default if the flag is disabled",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_string",
                 defaultValue: "asdf",
                 evalCtx: { targetingKey: "" }
@@ -525,7 +527,7 @@ describe("string", () => {
         {
             name: "use default if the flag is disabled 2",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "disabled_string_2",
                 defaultValue: "asdf",
                 evalCtx: { targetingKey: "" }
@@ -541,7 +543,7 @@ describe("string", () => {
         {
             name: "error if we expect a string but get another type",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "int_targeting_match",
                 defaultValue: "",
                 evalCtx: { targetingKey: "" }
@@ -558,7 +560,7 @@ describe("string", () => {
         {
             name: "error if there is no flag",
             args: {
-                apiKey: "mytoken",
+                apiKey: tok,
                 flag: "no_such_flag",
                 defaultValue: "",
                 evalCtx: { targetingKey: "" }

@@ -13,11 +13,13 @@ import (
 	localnotifier "github.com/w-h-a/flags/internal/server/clients/notifier/local"
 	"github.com/w-h-a/flags/internal/server/clients/notifier/slack"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
+	dynamodbreader "github.com/w-h-a/flags/internal/server/clients/reader/dynamodb"
 	"github.com/w-h-a/flags/internal/server/clients/reader/github"
 	"github.com/w-h-a/flags/internal/server/clients/reader/gitlab"
 	localreader "github.com/w-h-a/flags/internal/server/clients/reader/local"
 	postgresreader "github.com/w-h-a/flags/internal/server/clients/reader/postgres"
 	"github.com/w-h-a/flags/internal/server/clients/writer"
+	dynamodbwriter "github.com/w-h-a/flags/internal/server/clients/writer/dynamodb"
 	"github.com/w-h-a/flags/internal/server/clients/writer/noop"
 	postgreswriter "github.com/w-h-a/flags/internal/server/clients/writer/postgres"
 	"github.com/w-h-a/flags/internal/server/config"
@@ -203,13 +205,13 @@ func Server(ctx *cli.Context) error {
 		wg.Wait()
 	}()
 
-	close(exportStop)
-
-	log.Info("successfully stopped export")
-
 	close(cacheStop)
 
 	log.Info("successfully stopped cache")
+
+	close(exportStop)
+
+	log.Info("successfully stopped export")
 
 	select {
 	case <-wait:
@@ -225,6 +227,10 @@ func initWriteClient() writer.Writer {
 	switch config.WriteClient() {
 	case "postgres":
 		return postgreswriter.NewWriter(
+			writer.WithLocation(config.WriteClientLocation()),
+		)
+	case "dynamodb":
+		return dynamodbwriter.NewWriter(
 			writer.WithLocation(config.WriteClientLocation()),
 		)
 	default:
@@ -248,6 +254,10 @@ func initReadClient() reader.Reader {
 		)
 	case "postgres":
 		return postgresreader.NewReader(
+			reader.WithLocation(config.ReadClientLocation()),
+		)
+	case "dynamodb":
+		return dynamodbreader.NewReader(
 			reader.WithLocation(config.ReadClientLocation()),
 		)
 	default:

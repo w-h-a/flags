@@ -5,7 +5,7 @@ const main = async () => {
     const provider = new OFREPProvider({
         baseUrl: "http://flags:4000",
         headers: [
-            ["authorization", `Bearer myflagstoken`],
+            ["authorization", `Bearer mytoken`],
             ["content-type", "application/json"]
         ]
     });

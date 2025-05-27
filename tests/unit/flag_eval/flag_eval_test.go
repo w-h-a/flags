@@ -181,8 +181,10 @@ func TestFlagEval_YAML(t *testing.T) {
 
 			t.Cleanup(func() {
 				rsp.Body.Close()
-				exportService.Close()
 				notifyService.Close()
+				exportService.Close()
+				err = httpServer.Stop()
+				require.NoError(t, err)
 				config.Reset()
 			})
 		})
@@ -342,8 +344,10 @@ func TestFlagEval_JSON(t *testing.T) {
 
 			t.Cleanup(func() {
 				rsp.Body.Close()
-				exportService.Close()
 				notifyService.Close()
+				exportService.Close()
+				err = httpServer.Stop()
+				require.NoError(t, err)
 				config.Reset()
 			})
 		})

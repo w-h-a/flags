@@ -18,16 +18,22 @@ services:
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
 
-  postgres:
-    container_name: postgres
-    image: postgres:16
-    ports:
-      - '5432:5432'
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=flags
+  # postgres:
+  #   container_name: postgres
+  #   image: postgres:16
+  #   ports:
+  #     - '5432:5432'
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #     - POSTGRES_DB=flags
 
+  dynamodb:
+    container_name: dynamodb
+    image: amazon/dynamodb-local:2.6.0
+    command: "-jar DynamoDBLocal.jar -inMemory -sharedDb"
+    ports:
+      - '8000:8000'
 
   flags:
     container_name: flags
@@ -41,22 +47,30 @@ services:
       - NAME=flags
       - VERSION=0.1.0-alpha.0
       - HTTP_ADDRESS=:4000
-      - API_KEYS=myflagstoken
+      - API_KEYS=mytoken
       - TRACES_ADDRESS=jaeger:4318
       - METRICS_ADDRESS=prometheus:9090
       - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://prometheus:9090/api/v1/otlp/v1/metrics
       - FLAG_FORMAT=yaml
-      - WRITE_CLIENT=postgres
-      - WRITE_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
-      - READ_CLIENT=postgres
-      - READ_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
+      # - WRITE_CLIENT=postgres
+      # - WRITE_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
+      # - READ_CLIENT=postgres
+      # - READ_CLIENT_LOCATION=postgres://postgres:postgres@postgres:5432/flags?sslmode=disable
+      - WRITE_CLIENT=dynamodb
+      - WRITE_CLIENT_LOCATION=http://dynamodb:8000
+      - READ_CLIENT=dynamodb
+      - READ_CLIENT_LOCATION=http://dynamodb:8000
       - READ_INTERVAL=10
+      - AWS_SECRET_ACCESS_KEY=dummy
+      - AWS_ACCESS_KEY_ID=dummy
+      
     volumes:
       - ./flags.json:/nodejs/flags.json
     depends_on:
       - jaeger
       - prometheus
-      - postgres
+      # - postgres
+      - dynamodb
 
   nodejs:
     container_name: nodejs

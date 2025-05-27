@@ -1,26 +1,83 @@
-package go_test
+package dynamodb
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/open-feature/go-sdk-contrib/providers/ofrep"
 	of "github.com/open-feature/go-sdk/openfeature"
 	"github.com/stretchr/testify/require"
+	"github.com/w-h-a/flags/internal/flags"
 )
 
 const (
 	tok = "mytoken"
 )
 
-func TestGo_BooleanEval(t *testing.T) {
-	if len(os.Getenv("INTEGRATION")) == 0 || len(os.Getenv("DYNAMODB")) > 0 {
-		t.Log("SKIPPING INTEGRATION TEST")
-		return
+func TestMain(m *testing.M) {
+	if len(os.Getenv("DYNAMODB")) == 0 {
+		log.Print("SKIPPING DYNAMODB TEST")
+		os.Exit(0)
 	}
 
+	if err := populateDynamoDB(); err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	// waiting for cache to populate
+	<-time.After(10 * time.Second)
+
+	code := m.Run()
+
+	os.Exit(code)
+}
+
+func populateDynamoDB() error {
+	client := &http.Client{}
+
+	bs, err := os.ReadFile("../testdata/flags.yaml")
+	if err != nil {
+		return err
+	}
+
+	fs, err := flags.Factory(bs, "yaml")
+	if err != nil {
+		return err
+	}
+
+	for k, v := range fs {
+		bs, _ := json.Marshal(map[string]*flags.Flag{k: v})
+
+		req, err := http.NewRequest(
+			http.MethodPut,
+			"http://localhost:4000/admin/v1/flags",
+			bytes.NewReader(bs),
+		)
+		if err != nil {
+			return err
+		}
+
+		req.Header.Set("content-type", "application/json")
+		req.Header.Set("authorization", fmt.Sprintf("Bearer %s", tok))
+
+		_, err = client.Do(req)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func TestDynamoDB_BooleanEval(t *testing.T) {
 	type args struct {
 		apiKey       string
 		flag         string
@@ -274,12 +331,7 @@ func TestGo_BooleanEval(t *testing.T) {
 	}
 }
 
-func TestGo_FloatEval(t *testing.T) {
-	if len(os.Getenv("INTEGRATION")) == 0 || len(os.Getenv("DYNAMODB")) > 0 {
-		t.Log("SKIPPING INTEGRATION TEST")
-		return
-	}
-
+func TestDynamoDB_FloatEval(t *testing.T) {
 	type args struct {
 		apiKey       string
 		flag         string
@@ -533,9 +585,9 @@ func TestGo_FloatEval(t *testing.T) {
 	}
 }
 
-func TestGo_IntEval(t *testing.T) {
-	if len(os.Getenv("INTEGRATION")) == 0 || len(os.Getenv("DYNAMODB")) > 0 {
-		t.Log("SKIPPING INTEGRATION TEST")
+func TestDynamoDB_IntEval(t *testing.T) {
+	if len(os.Getenv("DYNAMODB")) == 0 {
+		t.Log("SKIPPING DYNAMODB TEST")
 		return
 	}
 
@@ -792,9 +844,9 @@ func TestGo_IntEval(t *testing.T) {
 	}
 }
 
-func TestGo_StringEval(t *testing.T) {
-	if len(os.Getenv("INTEGRATION")) == 0 || len(os.Getenv("DYNAMODB")) > 0 {
-		t.Log("SKIPPING INTEGRATION TEST")
+func TestDynamoDB_StringEval(t *testing.T) {
+	if len(os.Getenv("DYNAMODB")) == 0 {
+		t.Log("SKIPPING DYNAMODB TEST")
 		return
 	}
 
