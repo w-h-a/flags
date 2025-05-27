@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/w-h-a/flags/internal/server/clients/writer"
+	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/pkg/telemetry/log"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 )
@@ -22,8 +23,7 @@ var AWSCFG aws.Config
 func init() {
 	cfg, err := awsconfig.LoadDefaultConfig(
 		context.TODO(),
-		// TODO: grab from config
-		awsconfig.WithRegion("local"),
+		awsconfig.WithRegion(config.Region()),
 	)
 	if err != nil {
 		log.Fatal(err)

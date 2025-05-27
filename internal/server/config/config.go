@@ -14,6 +14,7 @@ var (
 
 type config struct {
 	env                 string
+	region              string
 	name                string
 	version             string
 	httpAddress         string
@@ -40,6 +41,7 @@ func New() {
 	once.Do(func() {
 		instance = &config{
 			env:                 "dev",
+			region:              "local",
 			name:                "flags",
 			version:             "0.1.0-alpha.0",
 			httpAddress:         ":0",
@@ -65,6 +67,11 @@ func New() {
 		env := os.Getenv("ENV")
 		if len(env) > 0 {
 			instance.env = env
+		}
+
+		region := os.Getenv("AWS_REGION")
+		if len(region) > 0 {
+			instance.region = region
 		}
 
 		name := os.Getenv("NAME")
@@ -184,6 +191,14 @@ func Env() string {
 	}
 
 	return instance.env
+}
+
+func Region() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.region
 }
 
 func Name() string {
@@ -351,6 +366,7 @@ func NotifyURL() string {
 func Reset() {
 	instance = &config{
 		env:                 "dev",
+		region:              "local",
 		name:                "flags",
 		version:             "0.1.0-alpha.0",
 		httpAddress:         ":0",
