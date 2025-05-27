@@ -195,8 +195,10 @@ func TestGetFlags(t *testing.T) {
 
 			t.Cleanup(func() {
 				rsp.Body.Close()
-				exportService.Close()
 				notifyService.Close()
+				exportService.Close()
+				err = httpServer.Stop()
+				require.NoError(t, err)
 				config.Reset()
 			})
 		})

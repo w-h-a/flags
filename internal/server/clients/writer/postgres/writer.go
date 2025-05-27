@@ -35,7 +35,7 @@ type client struct {
 }
 
 func (c *client) Write(ctx context.Context, key string, bs []byte) error {
-	if _, err := c.write.Exec(key, bs); err != nil {
+	if _, err := c.write.ExecContext(ctx, key, bs); err != nil {
 		return err
 	}
 
