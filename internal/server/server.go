@@ -62,7 +62,6 @@ func Factory(
 
 	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags/{key}").HandlerFunc(httpOFREP.PostOne)
 	router.Methods(http.MethodPost).Path("/ofrep/v1/evaluate/flags").HandlerFunc(httpOFREP.PostAll)
-	router.Methods(http.MethodGet).Path("/ofrep/v1/configuration").HandlerFunc(httpOFREP.GetConfig)
 
 	httpStatus := httphandlers.NewStatusHandler(cacheService)
 
