@@ -19,8 +19,9 @@ wait_for_server () {
 export HTTP_ADDRESS=":4000"
 export API_KEYS="mytoken"
 export FLAG_FORMAT="json"
-export READ_CLIENT="github"
-export READ_CLIENT_LOCATION="https://api.github.com/repos/w-h-a/flags/contents/tests/integration/testdata/flags.json?ref=main"
+export READ_CLIENT_LOCATION="./tests/integration/testdata/flags.json"
+# export READ_CLIENT="github"
+# export READ_CLIENT_LOCATION="https://api.github.com/repos/w-h-a/flags/contents/tests/integration/testdata/flags.json?ref=main"
 
 # run server
 make go-build

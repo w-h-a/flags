@@ -26,7 +26,8 @@ number-flag:
     "default": 1
   rules:
     - name: rule1
-      variant: "true"
+      variant: "false"
+      query: targetingKey eq "123456"
 
 bare-minimum-flag:
   disabled: false

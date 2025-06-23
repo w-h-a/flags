@@ -3,6 +3,7 @@ package flags
 import (
 	"errors"
 
+	queryeval "github.com/nikunjy/rules/parser"
 	"github.com/w-h-a/pkg/telemetry/log"
 )
 
@@ -27,9 +28,9 @@ type Flag struct {
 	DefaultRule *Rule `json:"-" yaml:"-"`
 }
 
-func (f *Flag) Evaluate() (any, ResolutionDetails) {
+func (f *Flag) Evaluate(evalCtx map[string]any) (any, ResolutionDetails) {
 	if f.IsDisabled() {
-		variant, _ := f.DefaultRule.Evaluate()
+		variant, _ := f.DefaultRule.Evaluate(evalCtx)
 
 		resolutionDetails := ResolutionDetails{Variant: variant, Reason: ReasonDisabled}
 
@@ -37,7 +38,7 @@ func (f *Flag) Evaluate() (any, ResolutionDetails) {
 	}
 
 	for i, rule := range f.Rules {
-		variant, err := rule.Evaluate()
+		variant, err := rule.Evaluate(evalCtx)
 		if err != nil && errors.Is(err, ErrRuleDoesNotApply) {
 			continue
 		} else if err != nil {
@@ -59,7 +60,7 @@ func (f *Flag) Evaluate() (any, ResolutionDetails) {
 		return f.value(variant), resolutionDetails
 	}
 
-	variant, _ := f.DefaultRule.Evaluate()
+	variant, _ := f.DefaultRule.Evaluate(evalCtx)
 
 	resolutionDetails := ResolutionDetails{Variant: variant, Reason: ReasonDefault}
 
@@ -87,14 +88,21 @@ func (f *Flag) value(name string) any {
 type Rule struct {
 	Name    string `json:"name" yaml:"name"`
 	Variant string `json:"variant" yaml:"variant"`
+	Query   string `json:"query,omitempty" yaml:"query,omitempty"`
 }
 
-func (r *Rule) Evaluate() (string, error) {
+func (r *Rule) Evaluate(evalCtx map[string]any) (string, error) {
 	// if this rule has percentages, use them
 
 	// if this rule has a query, check whether it applies
 	// if it does, return variant
 	// otherwise, return empty string and ErrRuleDoesNotApply
+	if len(r.Query) > 0 {
+		if ok := queryeval.Evaluate(r.Query, evalCtx); ok {
+			return r.Variant, nil
+		}
+		return "", ErrRuleDoesNotApply
+	}
 
 	// otherwise, return the variant
 	return r.Variant, nil

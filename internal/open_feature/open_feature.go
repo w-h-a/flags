@@ -2,23 +2,19 @@ package openfeature
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/open-feature/go-sdk-contrib/providers/ofrep"
 	of "github.com/open-feature/go-sdk/openfeature"
 )
 
 func Factory(
-	host string,
-	port int,
+	baseUri string,
 	insecure bool,
 	apiKey string,
 	flagKey string,
 	flagType string,
 	name string,
 ) (any, error) {
-	baseUri := fmt.Sprintf("%s:%d", host, port)
-
 	if insecure {
 		baseUri = "http://" + baseUri
 	} else {

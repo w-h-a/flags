@@ -25,7 +25,7 @@ type Service struct {
 	mtx        sync.RWMutex
 }
 
-func (s *Service) EvaluateFlag(ctx context.Context, flagKey string) (FlagState, error) {
+func (s *Service) EvaluateFlag(ctx context.Context, flagKey string, evalCtx map[string]any) (FlagState, error) {
 	var flag *flags.Flag
 	var ok bool
 
@@ -43,7 +43,7 @@ func (s *Service) EvaluateFlag(ctx context.Context, flagKey string) (FlagState, 
 		return result, ErrNotFound
 	}
 
-	flagValue, resolutionDetails := flag.Evaluate()
+	flagValue, resolutionDetails := flag.Evaluate(evalCtx)
 
 	result := FlagState{
 		Key:     flagKey,
@@ -65,7 +65,7 @@ func (s *Service) EvaluateFlags(ctx context.Context) AllFlags {
 	allFlags := NewAllFlags()
 
 	for k, flag := range flags {
-		flagValue, resolutionDetails := flag.Evaluate()
+		flagValue, resolutionDetails := flag.Evaluate(map[string]any{})
 
 		allFlags.AddFlag(FlagState{
 			Key:     k,

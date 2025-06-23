@@ -63,9 +63,8 @@ services:
       - READ_INTERVAL=10
       - AWS_SECRET_ACCESS_KEY=dummy
       - AWS_ACCESS_KEY_ID=dummy
-      
-    volumes:
-      - ./flags.json:/nodejs/flags.json
+    # volumes:
+    #   - ./flags.json:/nodejs/flags.json
     depends_on:
       - jaeger
       - prometheus
