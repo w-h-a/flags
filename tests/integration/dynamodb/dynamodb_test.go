@@ -298,6 +298,58 @@ func TestDynamoDB_BooleanEval(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "resolve to true when targetingKey does match",
+			args: args{
+				apiKey:       tok,
+				flag:         "bool_query",
+				defaultValue: false,
+				evalCtx: of.NewEvaluationContext(
+					"123456",
+					map[string]any{},
+				),
+			},
+			want: of.BooleanEvaluationDetails{
+				Value: true,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "bool_query",
+					FlagType: of.Boolean,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "true",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to false when targetingKey does NOT match but there is a backup rule",
+			args: args{
+				apiKey:       tok,
+				flag:         "bool_query",
+				defaultValue: false,
+				evalCtx: of.NewEvaluationContext(
+					"654321",
+					map[string]any{},
+				),
+			},
+			want: of.BooleanEvaluationDetails{
+				Value: false,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "bool_query",
+					FlagType: of.Boolean,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "false",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -547,6 +599,58 @@ func TestDynamoDB_FloatEval(t *testing.T) {
 						Reason:       of.ErrorReason,
 						ErrorCode:    of.GeneralCode,
 						ErrorMessage: "authentication/authorization error",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to 100.10 when targetingKey does match",
+			args: args{
+				apiKey:       tok,
+				flag:         "float_query",
+				defaultValue: 0.0,
+				evalCtx: of.NewEvaluationContext(
+					"123456",
+					map[string]any{},
+				),
+			},
+			want: of.FloatEvaluationDetails{
+				Value: 100.1,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "float_query",
+					FlagType: of.Float,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "true",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to 100.00 when targetingKey does NOT match but there is a backup rule",
+			args: args{
+				apiKey:       tok,
+				flag:         "float_query",
+				defaultValue: 0.0,
+				evalCtx: of.NewEvaluationContext(
+					"654321",
+					map[string]any{},
+				),
+			},
+			want: of.FloatEvaluationDetails{
+				Value: 100.00,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "float_query",
+					FlagType: of.Float,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "false",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
 						FlagMetadata: map[string]any{},
 					},
 				},
@@ -811,6 +915,58 @@ func TestDynamoDB_IntEval(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "resolve to 101 when targetingKey does match",
+			args: args{
+				apiKey:       tok,
+				flag:         "int_query",
+				defaultValue: 0,
+				evalCtx: of.NewEvaluationContext(
+					"123456",
+					map[string]any{},
+				),
+			},
+			want: of.IntEvaluationDetails{
+				Value: 101,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "int_query",
+					FlagType: of.Int,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "true",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to 100 when targetingKey does NOT match but there is a backup rule",
+			args: args{
+				apiKey:       tok,
+				flag:         "int_query",
+				defaultValue: 0.0,
+				evalCtx: of.NewEvaluationContext(
+					"654321",
+					map[string]any{},
+				),
+			},
+			want: of.IntEvaluationDetails{
+				Value: 100.00,
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "int_query",
+					FlagType: of.Int,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "false",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -1065,6 +1221,58 @@ func TestDynamoDB_StringEval(t *testing.T) {
 						Reason:       of.ErrorReason,
 						ErrorCode:    of.GeneralCode,
 						ErrorMessage: "authentication/authorization error",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to 'fdsa' when targetingKey does match",
+			args: args{
+				apiKey:       tok,
+				flag:         "string_query",
+				defaultValue: "",
+				evalCtx: of.NewEvaluationContext(
+					"123456",
+					map[string]any{},
+				),
+			},
+			want: of.StringEvaluationDetails{
+				Value: "fdsa",
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "string_query",
+					FlagType: of.String,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "true",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
+						FlagMetadata: map[string]any{},
+					},
+				},
+			},
+		},
+		{
+			name: "resolve to 'asdf' when targetingKey does NOT match but there is a backup rule",
+			args: args{
+				apiKey:       tok,
+				flag:         "string_query",
+				defaultValue: "",
+				evalCtx: of.NewEvaluationContext(
+					"654321",
+					map[string]any{},
+				),
+			},
+			want: of.StringEvaluationDetails{
+				Value: "asdf",
+				EvaluationDetails: of.EvaluationDetails{
+					FlagKey:  "string_query",
+					FlagType: of.String,
+					ResolutionDetail: of.ResolutionDetail{
+						Variant:      "false",
+						Reason:       of.TargetingMatchReason,
+						ErrorCode:    "",
+						ErrorMessage: "",
 						FlagMetadata: map[string]any{},
 					},
 				},

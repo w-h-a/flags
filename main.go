@@ -26,13 +26,8 @@ func main() {
 				},
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:     "host",
-						Usage:    "Provide hostname of server",
-						Required: true,
-					},
-					&cli.IntFlag{
-						Name:     "port",
-						Usage:    "Provide the port of the server",
+						Name:     "baseUri",
+						Usage:    "Provide baseUri (e.g., localhost:4000) of server",
 						Required: true,
 					},
 					&cli.BoolFlag{

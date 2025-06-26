@@ -1,40 +1,19 @@
 {
-    "show-it": {
-        "disabled": true,
-        "variants": {
-            "default": false,
-            "disabled": false,
-            "enabled": true
-        },
-        "rules": [
-            {
-                "name": "rule1",
-                "variant": "enabled"
-            }
-        ]
-    },
     "number-me": {
         "disabled": false,
         "variants": {
             "default": 0,
-            "new": 100
+            "new": 100,
+            "old": 10
         },
         "rules": [
             {
                 "name": "rule1",
-                "variant": "new"
-            }
-        ]
-    },
-    "talk": {
-        "disabled": false,
-        "variants": {
-            "default": "",
-            "new": "hello, world"
-        },
-        "rules": [
+                "variant": "old",
+                "query": "targetingKey eq \"123456\""
+            },
             {
-                "name": "rule1",
+                "name": "rule2",
                 "variant": "new"
             }
         ]

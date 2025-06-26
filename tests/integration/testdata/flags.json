@@ -119,5 +119,81 @@
                 "variant": "true"
             }
         ]
+    },
+    "bool_query": {
+        "disabled": false,
+        "variants": {
+            "default": false,
+            "true": true,
+            "false": false
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true",
+                "query": "targetingKey eq \"123456\""
+            },
+            {
+                "name": "rule2",
+                "variant": "false"
+            }
+        ]
+    },
+    "float_query": {
+        "disabled": false,
+        "variants": {
+            "default": 0.0,
+            "true": 100.10,
+            "false": 100.00
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true",
+                "query": "targetingKey eq \"123456\""
+            },
+            {
+                "name": "rule2",
+                "variant": "false"
+            }
+        ]
+    },
+    "int_query": {
+        "disabled": false,
+        "variants": {
+            "default": 0,
+            "true": 101,
+            "false": 100
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true",
+                "query": "targetingKey eq \"123456\""
+            },
+            {
+                "name": "rule2",
+                "variant": "false"
+            }
+        ]
+    },
+    "string_query": {
+        "disabled": false,
+        "variants": {
+            "default": "",
+            "true": "fdsa",
+            "false": "asdf"
+        },
+        "rules": [
+            {
+                "name": "rule1",
+                "variant": "true",
+                "query": "targetingKey eq \"123456\""
+            },
+            {
+                "name": "rule2",
+                "variant": "false"
+            }
+        ]
     }
 }

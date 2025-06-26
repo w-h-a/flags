@@ -19,8 +19,7 @@ func OpenFeature(ctx *cli.Context) error {
 	log.SetLogger(logger)
 
 	v, err := openfeature.Factory(
-		ctx.String("host"),
-		ctx.Int("port"),
+		ctx.String("baseUri"),
 		ctx.Bool("insecure"),
 		ctx.String("apiKey"),
 		ctx.String("flag"),
@@ -31,7 +30,7 @@ func OpenFeature(ctx *cli.Context) error {
 		return err
 	}
 
-	log.Infof("RECEVIED %+v", v)
+	log.Infof("%s evaluated as %+v", ctx.String("flag"), v)
 
 	return nil
 }

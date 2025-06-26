@@ -37,7 +37,8 @@
         "rules": [
             {
                 "name": "rule1",
-                "variant": "true"
+                "variant": "false",
+                "query": "targetingKey eq \"123456\""
             }
         ]
     },

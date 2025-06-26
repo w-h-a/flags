@@ -1,11 +1,11 @@
 package flageval
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -34,9 +34,9 @@ func TestFlagEval_YAML(t *testing.T) {
 		return
 	}
 
-	// TODO: add tests when we read the req body
 	type args struct {
-		flagKey string
+		flagKey  string
+		bodyFile string
 	}
 
 	type want struct {
@@ -97,6 +97,17 @@ func TestFlagEval_YAML(t *testing.T) {
 			want: want{
 				httpCode: http.StatusNotFound,
 				bodyFile: "../testdata/flag_eval/flag_not_found_response.json",
+			},
+		},
+		{
+			name: "request with valid body and matching targeting key",
+			args: args{
+				flagKey:  "number-flag",
+				bodyFile: "../testdata/flag_eval/valid_request_matching_targeting_key.json",
+			},
+			want: want{
+				httpCode: http.StatusOK,
+				bodyFile: "../testdata/flag_eval/valid_response_matching_targeting_key.json",
 			},
 		},
 	}
@@ -154,10 +165,18 @@ func TestFlagEval_YAML(t *testing.T) {
 			err = httpServer.Run()
 			require.NoError(t, err)
 
+			var reqBody io.Reader
+
+			if len(test.args.bodyFile) > 0 {
+				content, err := os.ReadFile(test.args.bodyFile)
+				require.NoError(t, err)
+				reqBody = bytes.NewReader(content)
+			}
+
 			req, err := http.NewRequest(
 				http.MethodPost,
 				fmt.Sprintf("http://%s%s%s", httpServer.Options().Address, "/ofrep/v1/evaluate/flags/", test.args.flagKey),
-				strings.NewReader(""),
+				reqBody,
 			)
 			require.NoError(t, err)
 
@@ -197,9 +216,9 @@ func TestFlagEval_JSON(t *testing.T) {
 		return
 	}
 
-	// TODO: add tests when we read the req body
 	type args struct {
-		flagKey string
+		flagKey  string
+		bodyFile string
 	}
 
 	type want struct {
@@ -262,6 +281,17 @@ func TestFlagEval_JSON(t *testing.T) {
 				bodyFile: "../testdata/flag_eval/flag_not_found_response.json",
 			},
 		},
+		{
+			name: "request with valid body and matching targeting key",
+			args: args{
+				flagKey:  "number-flag",
+				bodyFile: "../testdata/flag_eval/valid_request_matching_targeting_key.json",
+			},
+			want: want{
+				httpCode: http.StatusOK,
+				bodyFile: "../testdata/flag_eval/valid_response_matching_targeting_key.json",
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -317,10 +347,18 @@ func TestFlagEval_JSON(t *testing.T) {
 			err = httpServer.Run()
 			require.NoError(t, err)
 
+			var reqBody io.Reader
+
+			if len(test.args.bodyFile) > 0 {
+				content, err := os.ReadFile(test.args.bodyFile)
+				require.NoError(t, err)
+				reqBody = bytes.NewReader(content)
+			}
+
 			req, err := http.NewRequest(
 				http.MethodPost,
 				fmt.Sprintf("http://%s%s%s", httpServer.Options().Address, "/ofrep/v1/evaluate/flags/", test.args.flagKey),
-				strings.NewReader(""),
+				reqBody,
 			)
 			require.NoError(t, err)
 

@@ -25,7 +25,13 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flagState, err := o.cacheService.EvaluateFlag(ctx, flagKey)
+	evalCtx, err := o.parser.ParsePostOneBody(ctx, r)
+	if err != nil {
+		writeRsp(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
+		return
+	}
+
+	flagState, err := o.cacheService.EvaluateFlag(ctx, flagKey, evalCtx)
 	if err != nil && errors.Is(err, cache.ErrNotFound) {
 		writeRsp(w, http.StatusNotFound, flagState)
 		return

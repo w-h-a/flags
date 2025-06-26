@@ -136,6 +136,38 @@ describe("bool", () => {
                 errorMessage: "",
                 flagMetadata: {}
             }
+        },
+        {
+            name: "resolve to true when targetingKey does match",
+            args: {
+                apiKey: tok,
+                flag: "bool_query",
+                defaultValue: false,
+                evalCtx: { targetingKey: "123456" }
+            },
+            want: {
+                flagKey: "bool_query",
+                value: true,
+                variant: "true",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
+        {
+            name: "resolve to false when targetingKey does NOT match but there is a backup rule",
+            args: {
+                apiKey: tok,
+                flag: "bool_query",
+                defaultValue: false,
+                evalCtx: { targetingKey: "654321" }
+            },
+            want: {
+                flagKey: "bool_query",
+                value: false,
+                variant: "false",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
         }
     ];
 
@@ -293,7 +325,39 @@ describe("float", () => {
                 errorMessage: "",
                 flagMetadata: {}
             }
-        }
+        },
+        {
+            name: "resolve to 100.10 when targetingKey does match",
+            args: {
+                apiKey: tok,
+                flag: "float_query",
+                defaultValue: 0.0,
+                evalCtx: { targetingKey: "123456" }
+            },
+            want: {
+                flagKey: "float_query",
+                value: 100.1,
+                variant: "true",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
+        {
+            name: "resolve to 100.00 when targetingKey does NOT match but there is a backup rule",
+            args: {
+                apiKey: tok,
+                flag: "float_query",
+                defaultValue: 0.0,
+                evalCtx: { targetingKey: "654321" }
+            },
+            want: {
+                flagKey: "float_query",
+                value: 100.00,
+                variant: "false",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
     ];
 
     for (const t of tests) {
@@ -450,7 +514,39 @@ describe("integer", () => {
                 errorMessage: "",
                 flagMetadata: {}
             }
-        }
+        },
+        {
+            name: "resolve to 101 when targetingKey does match",
+            args: {
+                apiKey: tok,
+                flag: "int_query",
+                defaultValue: 0,
+                evalCtx: { targetingKey: "123456" }
+            },
+            want: {
+                flagKey: "int_query",
+                value: 101,
+                variant: "true",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
+        {
+            name: "resolve to 100 when targetingKey does NOT match but there is a backup rule",
+            args: {
+                apiKey: tok,
+                flag: "int_query",
+                defaultValue: 0,
+                evalCtx: { targetingKey: "654321" }
+            },
+            want: {
+                flagKey: "int_query",
+                value: 100,
+                variant: "false",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
     ];
 
     for (const t of tests) {
@@ -605,6 +701,38 @@ describe("string", () => {
                 reason: "ERROR",
                 errorCode: "GENERAL",
                 errorMessage: "",
+                flagMetadata: {}
+            }
+        },
+        {
+            name: "resolve to 'fdsa' when targetingKey does match",
+            args: {
+                apiKey: tok,
+                flag: "string_query",
+                defaultValue: "",
+                evalCtx: { targetingKey: "123456" }
+            },
+            want: {
+                flagKey: "string_query",
+                value: "fdsa",
+                variant: "true",
+                reason: "TARGETING_MATCH",
+                flagMetadata: {}
+            }
+        },
+        {
+            name: "resolve to 'asdf' when targetingKey does NOT match but there is a backup rule",
+            args: {
+                apiKey: tok,
+                flag: "string_query",
+                defaultValue: "",
+                evalCtx: { targetingKey: "654321" }
+            },
+            want: {
+                flagKey: "string_query",
+                value: "asdf",
+                variant: "false",
+                reason: "TARGETING_MATCH",
                 flagMetadata: {}
             }
         }

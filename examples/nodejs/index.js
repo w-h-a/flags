@@ -14,17 +14,22 @@ const main = async () => {
     
     const client = OpenFeature.getClient("nodejs");
 
+    const contexts = [
+        {},
+        { targetingKey: "123456" },
+        { targetingKey: "654321" },
+        {}
+    ];
+
     while (true) {
-        const got = await client.getBooleanValue("new-feat", false, {});
+        for (const ctx of contexts) {
+            const got = await client.getNumberValue("number-me", 0, ctx);
 
-        if (got) {
-            console.log(`✅ applying new feature`);
-        } else {
-            console.log(`❌ not applying new feature`);
+            console.log(`applying feature with ${got}`);
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+    }   
 }
 
 main();

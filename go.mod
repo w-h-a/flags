@@ -12,6 +12,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/mux v1.8.1
 	github.com/lib/pq v1.10.9
+	github.com/nikunjy/rules v1.5.0
 	github.com/open-feature/go-sdk v1.14.1
 	github.com/open-feature/go-sdk-contrib/providers/ofrep v0.1.5
 	github.com/r3labs/diff/v3 v3.0.1
@@ -32,6 +33,7 @@ require (
 )
 
 require (
+	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.35 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.14 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.34 // indirect
@@ -46,6 +48,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.23.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.27.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.31.1 // indirect
+	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
