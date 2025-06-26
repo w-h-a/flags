@@ -65,24 +65,6 @@ func (o *OFREP) PostAll(w http.ResponseWriter, r *http.Request) {
 	writeRsp(w, http.StatusOK, flags)
 }
 
-func (o *OFREP) GetConfig(w http.ResponseWriter, r *http.Request) {
-	rsp := map[string]any{
-		"name": config.Name(),
-		"capabilities": map[string]any{
-			"cacheInvalidation": map[string]any{
-				"polling": map[string]any{
-					"enabled": true,
-				},
-			},
-			"flagEvaluation": map[string]any{
-				"supportedTypes": []string{"int", "float", "string", "boolean"},
-			},
-		},
-	}
-
-	writeRsp(w, http.StatusOK, rsp)
-}
-
 func NewOFREPHandler(
 	cacheService *cache.Service,
 	exportService *export.Service,
