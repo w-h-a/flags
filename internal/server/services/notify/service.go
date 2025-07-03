@@ -2,7 +2,6 @@ package notify
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -30,7 +29,7 @@ func (s *Service) Notify(old, new map[string]*flags.Flag) {
 
 		err := s.notifyClient.Notify(context.TODO(), diff)
 		if err != nil {
-			slog.ErrorContext(context.TODO(), fmt.Sprintf("notify service failed to send message: %v", err))
+			slog.ErrorContext(context.TODO(), "notify service failed to send message", "error", err)
 		}
 	}()
 }

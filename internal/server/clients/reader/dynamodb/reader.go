@@ -2,7 +2,6 @@ package dynamodb
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -29,7 +28,7 @@ func init() {
 		awsconfig.WithRegion(config.Region()),
 	)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to register dynamodb reader with otel: %v", err))
+		slog.ErrorContext(context.Background(), "failed to register dynamodb reader with otel", "error", err)
 		os.Exit(1)
 	}
 
@@ -108,7 +107,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate dynamodb reader options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate dynamodb reader options", "error", err)
 		os.Exit(1)
 	}
 
@@ -148,7 +147,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 			},
 		},
 	); err != nil && !strings.Contains(err.Error(), "ResourceInUseException") {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create table for dynamodb reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create table for dynamodb reader", "error", err)
 		os.Exit(1)
 	}
 

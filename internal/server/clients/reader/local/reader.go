@@ -2,7 +2,6 @@ package local
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -25,7 +24,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to configure local file reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to configure local file reader", "error", err)
 		os.Exit(1)
 	}
 

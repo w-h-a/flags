@@ -2,7 +2,6 @@ package mock
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 	"sync"
@@ -37,7 +36,7 @@ func NewExporter(opts ...exporter.Option) exporter.Exporter {
 	options := exporter.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock exporter options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate mock exporter options", "error", err)
 		os.Exit(1)
 	}
 

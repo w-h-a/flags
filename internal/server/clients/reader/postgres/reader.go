@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -25,7 +24,7 @@ func init() {
 		otelsql.WithSystem(semconv.DBSystemPostgreSQL),
 	)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to register postgres reader with otel: %v", err))
+		slog.ErrorContext(context.Background(), "failed to register postgres reader with otel", "error", err)
 		os.Exit(1)
 	}
 
@@ -95,7 +94,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate postgres reader options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate postgres reader options", "error", err)
 		os.Exit(1)
 	}
 
@@ -106,42 +105,42 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	// postgres://user:password@host:port/db?sslmode=disable
 	conn, err := sql.Open(DRIVER, c.options.Location)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to connect with postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to connect with postgres reader", "error", err)
 		os.Exit(1)
 	}
 
 	if err := conn.Ping(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to ping with postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to ping with postgres reader", "error", err)
 		os.Exit(1)
 	}
 
 	if err := otelsql.RecordStats(conn); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to initialize postgres instrumentation for postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to initialize postgres instrumentation for postgres reader", "error", err)
 		os.Exit(1)
 	}
 
 	c.conn = conn
 
 	if _, err := c.conn.Exec(`CREATE TABLE IF NOT EXISTS flags (key text NOT NULL, value bytea, CONSTRAINT flags_pkey PRIMARY KEY (key));`); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create table for postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create table for postgres reader", "error", err)
 		os.Exit(1)
 	}
 
 	if _, err := c.conn.Exec(`CREATE INDEX IF NOT EXISTS key_index_flags ON flags (key);`); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create index for postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create index for postgres reader", "error", err)
 		os.Exit(1)
 	}
 
 	readOne, err := c.conn.Prepare(`SELECT key, value FROM flags WHERE key = $1;`)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to prepare select statement for postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to prepare select statement for postgres reader", "error", err)
 		os.Exit(1)
 	}
 	c.readOne = readOne
 
 	readMany, err := c.conn.Prepare(`SELECT key, value FROM flags;`)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to prepare select statement for postgres reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to prepare select statement for postgres reader", "error", err)
 		os.Exit(1)
 	}
 	c.readMany = readMany

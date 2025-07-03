@@ -2,7 +2,6 @@ package local
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/w-h-a/flags/internal/flags"
@@ -15,23 +14,23 @@ type client struct {
 
 func (c *client) Notify(ctx context.Context, diff flags.Diff) error {
 	for k := range diff.Deleted {
-		slog.InfoContext(ctx, fmt.Sprintf("flag %v removed", k))
+		slog.InfoContext(ctx, "flag removed", "flag", k)
 	}
 
 	for k := range diff.Added {
-		slog.InfoContext(ctx, fmt.Sprintf("flag %v added", k))
+		slog.InfoContext(ctx, "flag added", "flag", k)
 	}
 
 	for k, v := range diff.Updated {
 		if v.After.IsDisabled() != v.Before.IsDisabled() {
 			if v.After.IsDisabled() {
-				slog.InfoContext(ctx, fmt.Sprintf("flag %v is OFF", k))
+				slog.InfoContext(ctx, "flag is OFF", "flag", k)
 				continue
 			}
-			slog.InfoContext(ctx, fmt.Sprintf("flag %v is ON", k))
+			slog.InfoContext(ctx, "flag is ON", "flag", k)
 			continue
 		}
-		slog.InfoContext(ctx, fmt.Sprintf("flag %v is updated", k))
+		slog.InfoContext(ctx, "flag is updated", "flag", k)
 	}
 
 	return nil

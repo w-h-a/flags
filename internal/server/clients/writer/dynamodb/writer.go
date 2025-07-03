@@ -2,7 +2,6 @@ package dynamodb
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -28,7 +27,7 @@ func init() {
 		awsconfig.WithRegion(config.Region()),
 	)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to register dynamodb writer with otel: %v", err))
+		slog.ErrorContext(context.Background(), "failed to register dynamodb writer with otel", "error", err)
 		os.Exit(1)
 	}
 
@@ -63,7 +62,7 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 	options := writer.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate dynamodb writer options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate dynamodb writer options", "error", err)
 		os.Exit(1)
 	}
 
@@ -103,7 +102,7 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 			},
 		},
 	); err != nil && !strings.Contains(err.Error(), "ResourceInUseException") {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create table for dynamodb writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create table for dynamodb writer", "error", err)
 		os.Exit(1)
 	}
 

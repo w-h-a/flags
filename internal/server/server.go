@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -105,7 +104,7 @@ func UpdateCache(
 		case <-ticker.C:
 			old, new, err := cacheService.RetrieveFlags()
 			if err != nil {
-				slog.WarnContext(context.TODO(), fmt.Sprintf("failed to update the cache: %v", err))
+				slog.WarnContext(context.TODO(), "failed to update the cache", "error", err)
 			}
 
 			notifyService.Notify(old, new)

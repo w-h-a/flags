@@ -68,7 +68,7 @@ func NewWriteReader(opts ...writereader.Option) writereader.WriteReader {
 	options := writereader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock write reader options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate mock write reader options", "error", err)
 		os.Exit(1)
 	}
 

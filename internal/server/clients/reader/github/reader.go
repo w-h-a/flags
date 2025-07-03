@@ -59,7 +59,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to configure github reader: %v", err))
+		slog.ErrorContext(context.Background(), "failed to configure github reader", "error", err)
 		os.Exit(1)
 	}
 
