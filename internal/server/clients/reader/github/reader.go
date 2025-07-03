@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/w-h-a/flags/internal/server/clients/reader"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -58,7 +59,8 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatalf("failed to configure github client: %v", err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to configure github reader: %v", err))
+		os.Exit(1)
 	}
 
 	httpClient := http.DefaultClient

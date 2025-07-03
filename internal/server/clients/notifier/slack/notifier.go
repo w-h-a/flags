@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -13,7 +15,6 @@ import (
 	difflib "github.com/r3labs/diff/v3"
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 const (
@@ -145,7 +146,8 @@ func NewNotifier(opts ...notifier.Option) notifier.Notifier {
 	options := notifier.NewOptions(opts...)
 
 	if len(options.URL) == 0 {
-		log.Fatal("slack message client requires URL")
+		slog.ErrorContext(context.Background(), "slack notifier client requires URL")
+		os.Exit(1)
 	}
 
 	httpClient := http.DefaultClient

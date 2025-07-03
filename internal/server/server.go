@@ -1,6 +1,9 @@
 package server
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,7 +20,6 @@ import (
 	"github.com/w-h-a/flags/internal/server/services/notify"
 	"github.com/w-h-a/pkg/serverv2"
 	httpserver "github.com/w-h-a/pkg/serverv2/http"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 )
@@ -103,7 +105,7 @@ func UpdateCache(
 		case <-ticker.C:
 			old, new, err := cacheService.RetrieveFlags()
 			if err != nil {
-				log.Warnf("failed to update the cache: %v", err)
+				slog.WarnContext(context.TODO(), fmt.Sprintf("failed to update the cache: %v", err))
 			}
 
 			notifyService.Notify(old, new)

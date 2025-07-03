@@ -2,21 +2,7 @@ package unit
 
 import (
 	"github.com/w-h-a/flags/internal/flags"
-	"github.com/w-h-a/pkg/telemetry/log"
-	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
-	"github.com/w-h-a/pkg/utils/memoryutils"
 )
-
-func SetLogger(name string) {
-	logBuffer := memoryutils.NewBuffer()
-
-	logger := memorylog.NewLog(
-		log.LogWithPrefix(name),
-		memorylog.LogWithBuffer(logBuffer),
-	)
-
-	log.SetLogger(logger)
-}
 
 func DefaultFlags() map[string]*flags.Flag {
 	return map[string]*flags.Flag{

@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/w-h-a/flags/internal/flags"
-	"github.com/w-h-a/flags/tests/unit"
 )
 
 func TestParseFlags(t *testing.T) {
@@ -14,8 +13,6 @@ func TestParseFlags(t *testing.T) {
 		t.Log("SKIPPING UNIT TEST")
 		return
 	}
-
-	unit.SetLogger("parse")
 
 	tests := []struct {
 		name     string

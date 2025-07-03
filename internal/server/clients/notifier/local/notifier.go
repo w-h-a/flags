@@ -2,10 +2,11 @@ package local
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -14,23 +15,23 @@ type client struct {
 
 func (c *client) Notify(ctx context.Context, diff flags.Diff) error {
 	for k := range diff.Deleted {
-		log.Infof("flag %v removed", k)
+		slog.InfoContext(ctx, fmt.Sprintf("flag %v removed", k))
 	}
 
 	for k := range diff.Added {
-		log.Infof("flag %v added", k)
+		slog.InfoContext(ctx, fmt.Sprintf("flag %v added", k))
 	}
 
 	for k, v := range diff.Updated {
 		if v.After.IsDisabled() != v.Before.IsDisabled() {
 			if v.After.IsDisabled() {
-				log.Infof("flag %v is OFF", k)
+				slog.InfoContext(ctx, fmt.Sprintf("flag %v is OFF", k))
 				continue
 			}
-			log.Infof("flag %v is ON", k)
+			slog.InfoContext(ctx, fmt.Sprintf("flag %v is ON", k))
 			continue
 		}
-		log.Infof("flag %v updated", k)
+		slog.InfoContext(ctx, fmt.Sprintf("flag %v is updated", k))
 	}
 
 	return nil

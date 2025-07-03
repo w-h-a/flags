@@ -2,12 +2,13 @@ package notify
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/notifier"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Service struct {
@@ -29,7 +30,7 @@ func (s *Service) Notify(old, new map[string]*flags.Flag) {
 
 		err := s.notifyClient.Notify(context.TODO(), diff)
 		if err != nil {
-			log.Errorf("notify service failed to send message: %v", err)
+			slog.ErrorContext(context.TODO(), fmt.Sprintf("notify service failed to send message: %v", err))
 		}
 	}()
 }

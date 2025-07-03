@@ -1,10 +1,12 @@
 package flags
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"log/slog"
 
 	queryeval "github.com/nikunjy/rules/parser"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 const (
@@ -42,7 +44,7 @@ func (f *Flag) Evaluate(evalCtx map[string]any) (any, ResolutionDetails) {
 		if err != nil && errors.Is(err, ErrRuleDoesNotApply) {
 			continue
 		} else if err != nil {
-			log.Errorf("unexpected error during rule evaluation: %v", err)
+			slog.ErrorContext(context.TODO(), fmt.Sprintf("unexpected error during rule evaluation: %v", err))
 			continue
 		}
 

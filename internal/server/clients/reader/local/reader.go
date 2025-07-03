@@ -2,10 +2,11 @@ package local
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/w-h-a/flags/internal/server/clients/reader"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -24,7 +25,8 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatalf("failed to configure local file client: %v", err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to configure local file reader: %v", err))
+		os.Exit(1)
 	}
 
 	c := &client{

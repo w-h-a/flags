@@ -22,8 +22,6 @@ func TestUpdateFlags_NoChange(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger("update")
-
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
@@ -92,8 +90,6 @@ func TestUpdateFlags_UpdatedFlags(t *testing.T) {
 		t.Log("SKIPPING UNIT TEST")
 		return
 	}
-
-	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
@@ -171,8 +167,6 @@ func TestUpdateFlags_NewFlags(t *testing.T) {
 		return
 	}
 
-	unit.SetLogger("update")
-
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
 		mockreader.WithInitialFlags(
@@ -241,8 +235,6 @@ func TestUpdateFlags_RemoveFlags(t *testing.T) {
 		t.Log("SKIPPING UNIT TEST")
 		return
 	}
-
-	unit.SetLogger("update")
 
 	readClient := mockreader.NewReader(
 		reader.WithLocation("any"),
