@@ -2,7 +2,6 @@ package noop
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -21,7 +20,7 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 	options := writer.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate noop writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate noop writer", "error", err)
 		os.Exit(1)
 	}
 

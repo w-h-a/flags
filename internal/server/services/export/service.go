@@ -2,7 +2,6 @@ package export
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -50,7 +49,7 @@ func (s *Service) Flush() {
 	}
 
 	if err := s.exportClient.Export(context.TODO(), records); err != nil {
-		slog.WarnContext(context.TODO(), fmt.Sprintf("failed to export evaluation event: %v", err))
+		slog.WarnContext(context.TODO(), "failed to export evaluation event", "error", err)
 		return
 	}
 

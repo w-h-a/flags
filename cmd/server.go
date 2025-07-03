@@ -196,7 +196,7 @@ func Server(ctx *cli.Context) error {
 	// block
 	err = <-errCh
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to start server: %v", err))
+		slog.ErrorContext(context.Background(), "failed to start server", "error", err)
 		return err
 	}
 

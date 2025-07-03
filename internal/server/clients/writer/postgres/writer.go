@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -24,7 +23,7 @@ func init() {
 		otelsql.WithSystem(semconv.DBSystemPostgreSQL),
 	)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to register postgres writer with otel: %v", err))
+		slog.ErrorContext(context.Background(), "failed to register postgres writer with otel", "error", err)
 		os.Exit(1)
 	}
 
@@ -49,7 +48,7 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 	options := writer.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate postgres writer options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate postgres writer options", "error", err)
 		os.Exit(1)
 	}
 
@@ -60,35 +59,35 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 	// postgres://user:password@host:port/db?sslmode=disable
 	conn, err := sql.Open(DRIVER, c.options.Location)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to connect with postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to connect with postgres writer", "error", err)
 		os.Exit(1)
 	}
 
 	if err := conn.Ping(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to ping with postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to ping with postgres writer", "error", err)
 		os.Exit(1)
 	}
 
 	if err := otelsql.RecordStats(conn); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to initialize postgres instrumentation for postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to initialize postgres instrumentation for postgres writer", "error", err)
 		os.Exit(1)
 	}
 
 	c.conn = conn
 
 	if _, err := c.conn.Exec(`CREATE TABLE IF NOT EXISTS flags (key text NOT NULL, value bytea, CONSTRAINT flags_pkey PRIMARY KEY (key));`); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create table for postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create table for postgres writer", "error", err)
 		os.Exit(1)
 	}
 
 	if _, err := c.conn.Exec(`CREATE INDEX IF NOT EXISTS key_index_flags ON flags (key);`); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create index for postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to create index for postgres writer", "error", err)
 		os.Exit(1)
 	}
 
 	write, err := c.conn.Prepare(`INSERT INTO flags (key, value) VALUES ($1, $2::bytea) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`)
 	if err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to prepare insert statement for postgres writer: %v", err))
+		slog.ErrorContext(context.Background(), "failed to prepare insert statement for postgres writer", "error", err)
 		os.Exit(1)
 	}
 	c.write = write

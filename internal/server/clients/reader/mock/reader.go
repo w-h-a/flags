@@ -2,7 +2,6 @@ package mock
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"maps"
 	"os"
@@ -58,7 +57,7 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock reader options: %v", err))
+		slog.ErrorContext(context.Background(), "failed to validate mock reader options", "error", err)
 		os.Exit(1)
 	}
 
