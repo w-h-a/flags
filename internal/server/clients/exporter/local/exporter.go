@@ -3,11 +3,11 @@ package local
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -57,7 +57,8 @@ func NewExporter(opts ...exporter.Option) exporter.Exporter {
 	options := exporter.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate local exporter options: %v", err))
+		os.Exit(1)
 	}
 
 	p := &exporter.Parser{}

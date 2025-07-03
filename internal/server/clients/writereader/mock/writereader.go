@@ -3,11 +3,12 @@ package mock
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/reader"
 	"github.com/w-h-a/flags/internal/server/clients/writereader"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -67,7 +68,8 @@ func NewWriteReader(opts ...writereader.Option) writereader.WriteReader {
 	options := writereader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock write reader options: %v", err))
+		os.Exit(1)
 	}
 
 	c := &client{

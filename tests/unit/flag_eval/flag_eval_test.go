@@ -18,9 +18,6 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/writer"
 	"github.com/w-h-a/flags/internal/server/clients/writer/noop"
 	"github.com/w-h-a/flags/internal/server/config"
-	"github.com/w-h-a/pkg/telemetry/log"
-	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
-	"github.com/w-h-a/pkg/utils/memoryutils"
 )
 
 const (
@@ -119,23 +116,6 @@ func TestFlagEval_YAML(t *testing.T) {
 
 		// config
 		config.New()
-
-		// resource
-		name := config.Name()
-
-		// log
-		logBuffer := memoryutils.NewBuffer()
-
-		logger := memorylog.NewLog(
-			log.LogWithPrefix(name),
-			memorylog.LogWithBuffer(logBuffer),
-		)
-
-		log.SetLogger(logger)
-
-		// traces
-
-		// metrics
 
 		// clients
 		writeClient := noop.NewWriter(
@@ -301,23 +281,6 @@ func TestFlagEval_JSON(t *testing.T) {
 
 		// config
 		config.New()
-
-		// resource
-		name := config.Name()
-
-		// log
-		logBuffer := memoryutils.NewBuffer()
-
-		logger := memorylog.NewLog(
-			log.LogWithPrefix(name),
-			memorylog.LogWithBuffer(logBuffer),
-		)
-
-		log.SetLogger(logger)
-
-		// traces
-
-		// metrics
 
 		// clients
 		writeClient := noop.NewWriter(

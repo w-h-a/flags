@@ -19,9 +19,6 @@ import (
 	mockwritereader "github.com/w-h-a/flags/internal/server/clients/writereader/mock"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/tests/unit"
-	"github.com/w-h-a/pkg/telemetry/log"
-	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
-	"github.com/w-h-a/pkg/utils/memoryutils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -113,23 +110,6 @@ func TestGetFlag(t *testing.T) {
 
 		// config
 		config.New()
-
-		// resource
-		name := config.Name()
-
-		// log
-		logBuffer := memoryutils.NewBuffer()
-
-		logger := memorylog.NewLog(
-			log.LogWithPrefix(name),
-			memorylog.LogWithBuffer(logBuffer),
-		)
-
-		log.SetLogger(logger)
-
-		// traces
-
-		// metrics
 
 		// clients
 		writereadClient := mockwritereader.NewWriteReader(

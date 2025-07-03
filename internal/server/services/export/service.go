@@ -2,10 +2,11 @@ package export
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Service struct {
@@ -49,7 +50,7 @@ func (s *Service) Flush() {
 	}
 
 	if err := s.exportClient.Export(context.TODO(), records); err != nil {
-		log.Warnf("failed to export evaluation event: %v", err)
+		slog.WarnContext(context.TODO(), fmt.Sprintf("failed to export evaluation event: %v", err))
 		return
 	}
 

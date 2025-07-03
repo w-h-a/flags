@@ -2,12 +2,14 @@ package mock
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"maps"
+	"os"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"gopkg.in/yaml.v3"
 )
 
@@ -56,7 +58,8 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock reader options: %v", err))
+		os.Exit(1)
 	}
 
 	c := &Client{

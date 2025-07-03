@@ -2,10 +2,12 @@ package mock
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"os"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type Client struct {
@@ -35,7 +37,8 @@ func NewExporter(opts ...exporter.Option) exporter.Exporter {
 	options := exporter.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate mock exporter options: %v", err))
+		os.Exit(1)
 	}
 
 	p := &exporter.Parser{}

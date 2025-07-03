@@ -10,7 +10,6 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
 	"github.com/w-h-a/flags/internal/server/clients/exporter/mock"
 	"github.com/w-h-a/flags/internal/server/services/export"
-	"github.com/w-h-a/flags/tests/unit"
 )
 
 func TestExportEvals_FlushWithTime(t *testing.T) {
@@ -18,8 +17,6 @@ func TestExportEvals_FlushWithTime(t *testing.T) {
 		t.Log("SKIPPING UNIT TEST")
 		return
 	}
-
-	unit.SetLogger("export")
 
 	exportClient := mock.NewExporter(
 		exporter.WithDir("any"),
@@ -73,8 +70,6 @@ func TestExportEvals_FlushWithClose(t *testing.T) {
 		t.Log("SKIPPING UNIT TEST")
 		return
 	}
-
-	unit.SetLogger("export")
 
 	exportClient := mock.NewExporter(
 		exporter.WithDir("any"),

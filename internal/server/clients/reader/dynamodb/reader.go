@@ -2,6 +2,9 @@ package dynamodb
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -11,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
 	"github.com/w-h-a/flags/internal/server/config"
-	"github.com/w-h-a/pkg/telemetry/log"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 )
 
@@ -27,7 +29,8 @@ func init() {
 		awsconfig.WithRegion(config.Region()),
 	)
 	if err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to register dynamodb reader with otel: %v", err))
+		os.Exit(1)
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
@@ -105,7 +108,8 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate dynamodb reader options: %v", err))
+		os.Exit(1)
 	}
 
 	c := &client{
@@ -144,7 +148,8 @@ func NewReader(opts ...reader.Option) reader.Reader {
 			},
 		},
 	); err != nil && !strings.Contains(err.Error(), "ResourceInUseException") {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to create table for dynamodb reader: %v", err))
+		os.Exit(1)
 	}
 
 	return c

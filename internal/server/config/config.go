@@ -19,7 +19,13 @@ type config struct {
 	version             string
 	httpAddress         string
 	apiKeys             map[string]bool
+	logsExporter        string
+	logsAddress         string
+	logsUrlPath         string
+	logsAPIToken        string
+	tracesExporter      string
 	tracesAddress       string
+	metricsExporter     string
 	metricsAddress      string
 	flagFormat          string
 	writeClient         string
@@ -46,7 +52,13 @@ func New() {
 			version:             "0.1.0-alpha.0",
 			httpAddress:         ":0",
 			apiKeys:             map[string]bool{},
+			logsExporter:        "stdout",
+			logsAddress:         "",
+			logsUrlPath:         "",
+			logsAPIToken:        "",
+			tracesExporter:      "otlp",
 			tracesAddress:       "localhost:4318",
+			metricsExporter:     "otlp",
 			metricsAddress:      "localhost:4318",
 			flagFormat:          "yaml",
 			writeClient:         "noop",
@@ -97,9 +109,39 @@ func New() {
 			}
 		}
 
+		logsExporter := os.Getenv("LOGS_EXPORTER")
+		if len(logsExporter) > 0 {
+			instance.logsExporter = logsExporter
+		}
+
+		logsAddress := os.Getenv("LOGS_ADDRESS")
+		if len(logsAddress) > 0 {
+			instance.logsAddress = logsAddress
+		}
+
+		logsUrlPath := os.Getenv("LOGS_URL_PATH")
+		if len(logsUrlPath) > 0 {
+			instance.logsUrlPath = logsUrlPath
+		}
+
+		logsAPIToken := os.Getenv("LOGS_API_TOKEN")
+		if len(logsAPIToken) > 0 {
+			instance.logsAPIToken = logsAPIToken
+		}
+
+		tracesExporter := os.Getenv("TRACES_EXPORTER")
+		if len(tracesExporter) > 0 {
+			instance.tracesExporter = tracesExporter
+		}
+
 		tracesAddress := os.Getenv("TRACES_ADDRESS")
 		if len(tracesAddress) > 0 {
 			instance.tracesAddress = tracesAddress
+		}
+
+		metricsExporter := os.Getenv("METRICS_EXPORTER")
+		if len(metricsExporter) > 0 {
+			instance.metricsExporter = metricsExporter
 		}
 
 		metricsAddress := os.Getenv("METRICS_ADDRESS")
@@ -234,12 +276,60 @@ func CheckAPIKey(key string) bool {
 	return ok
 }
 
+func LogsExporter() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.logsExporter
+}
+
+func LogsAddress() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.logsAddress
+}
+
+func LogsUrlPath() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.logsUrlPath
+}
+
+func LogsAPIToken() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.logsAPIToken
+}
+
+func TracesExporter() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.tracesExporter
+}
+
 func TracesAddress() string {
 	if instance == nil {
 		return ""
 	}
 
 	return instance.tracesAddress
+}
+
+func MetricsExporter() string {
+	if instance == nil {
+		return ""
+	}
+
+	return instance.metricsExporter
 }
 
 func MetricsAddress() string {

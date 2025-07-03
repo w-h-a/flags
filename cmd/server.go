@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -23,18 +25,20 @@ import (
 	"github.com/w-h-a/flags/internal/server/clients/writer/noop"
 	postgreswriter "github.com/w-h-a/flags/internal/server/clients/writer/postgres"
 	"github.com/w-h-a/flags/internal/server/config"
-	"github.com/w-h-a/pkg/telemetry/log"
-	memorylog "github.com/w-h-a/pkg/telemetry/log/memory"
-	"github.com/w-h-a/pkg/utils/memoryutils"
+	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/instrumentation/host"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
+	globallog "go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/metric"
+	logsdk "go.opentelemetry.io/otel/sdk/log"
+	metricsdk "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
@@ -45,10 +49,8 @@ func Server(ctx *cli.Context) error {
 	// resource
 	name := config.Name()
 
-	instCtx := context.Background()
-
 	resource, err := resource.New(
-		instCtx,
+		context.Background(),
 		resource.WithAttributes(
 			semconv.ServiceName(name),
 		),
@@ -58,31 +60,41 @@ func Server(ctx *cli.Context) error {
 		return err
 	}
 
-	// log
-	logBuffer := memoryutils.NewBuffer()
-
-	logger := memorylog.NewLog(
-		log.LogWithPrefix(name),
-		memorylog.LogWithBuffer(logBuffer),
-	)
-
-	log.SetLogger(logger)
-
-	// traces
-	traceExporter, err := otlptracehttp.New(
-		instCtx,
-		otlptracehttp.WithEndpoint(config.TracesAddress()),
-		otlptracehttp.WithInsecure(),
-	)
+	// logs
+	logsExporter, err := initLogsExporter(context.Background())
 	if err != nil {
 		return err
 	}
 
-	tp := trace.NewTracerProvider(
-		trace.WithResource(resource),
-		trace.WithSampler(trace.AlwaysSample()),
-		trace.WithSpanProcessor(
-			trace.NewBatchSpanProcessor(
+	lp := logsdk.NewLoggerProvider(
+		logsdk.WithResource(resource),
+		logsdk.WithProcessor(
+			logsdk.NewBatchProcessor(logsExporter),
+		),
+	)
+
+	globallog.SetLoggerProvider(lp)
+
+	defer lp.Shutdown(context.Background())
+
+	logger := otelslog.NewLogger(
+		config.Name(),
+		otelslog.WithLoggerProvider(lp),
+	)
+
+	slog.SetDefault(logger)
+
+	// traces
+	traceExporter, err := initTracesExporter(context.Background())
+	if err != nil {
+		return err
+	}
+
+	tp := tracesdk.NewTracerProvider(
+		tracesdk.WithResource(resource),
+		tracesdk.WithSampler(tracesdk.AlwaysSample()),
+		tracesdk.WithSpanProcessor(
+			tracesdk.NewBatchSpanProcessor(
 				traceExporter,
 			),
 		),
@@ -95,39 +107,29 @@ func Server(ctx *cli.Context) error {
 			propagation.Baggage{},
 		),
 	)
-	defer func() {
-		if err := tp.Shutdown(instCtx); err != nil {
-			log.Warnf("failed to gracefully shutdown trace provider: %v", err)
-		}
-	}()
+
+	defer tp.Shutdown(context.Background())
 
 	// metrics
-	metricsExporter, err := otlpmetrichttp.New(
-		instCtx,
-		otlpmetrichttp.WithEndpoint(config.MetricsAddress()),
-		otlpmetrichttp.WithInsecure(),
-	)
+	metricsExporter, err := initMetricsExporter(context.Background())
 	if err != nil {
 		return err
 	}
 
-	mp := metric.NewMeterProvider(
-		metric.WithResource(resource),
-		metric.WithReader(
-			metric.NewPeriodicReader(
+	mp := metricsdk.NewMeterProvider(
+		metricsdk.WithResource(resource),
+		metricsdk.WithReader(
+			metricsdk.NewPeriodicReader(
 				metricsExporter,
-				metric.WithInterval(15*time.Second),
-				metric.WithProducer(runtime.NewProducer()),
+				metricsdk.WithInterval(15*time.Second),
+				metricsdk.WithProducer(runtime.NewProducer()),
 			),
 		),
 	)
 
 	otel.SetMeterProvider(mp)
-	defer func() {
-		if err := mp.Shutdown(instCtx); err != nil {
-			log.Warnf("failed to gracefully shutdown metric provider: %v", err)
-		}
-	}()
+
+	defer mp.Shutdown(context.Background())
 
 	if err := host.Start(); err != nil {
 		return err
@@ -162,6 +164,7 @@ func Server(ctx *cli.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		slog.InfoContext(context.Background(), fmt.Sprintf("http server listening on %s", config.HttpAddress()))
 		errCh <- httpServer.Start()
 	}()
 
@@ -193,7 +196,7 @@ func Server(ctx *cli.Context) error {
 	// block
 	err = <-errCh
 	if err != nil {
-		log.Errorf("failed to start server: %+v", err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to start server: %v", err))
 		return err
 	}
 
@@ -207,20 +210,61 @@ func Server(ctx *cli.Context) error {
 
 	close(cacheStop)
 
-	log.Info("successfully stopped cache")
+	slog.InfoContext(context.Background(), "successfully stopped cache")
 
 	close(exportStop)
 
-	log.Info("successfully stopped export")
+	slog.InfoContext(context.Background(), "successfully stopped export")
 
 	select {
 	case <-wait:
 	case <-time.After(30 * time.Second):
 	}
 
-	log.Info("successfully stopped server")
+	slog.InfoContext(context.Background(), "successfully stopped server")
 
 	return nil
+}
+
+func initLogsExporter(ctx context.Context) (logsdk.Exporter, error) {
+	switch config.LogsExporter() {
+	case "dd-otlp":
+		return otlploghttp.New(
+			ctx,
+			otlploghttp.WithEndpointURL(config.LogsAddress()),
+			otlploghttp.WithURLPath(config.LogsUrlPath()),
+			otlploghttp.WithHeaders(
+				map[string]string{
+					"dd-protocol": "otlp",
+					"dd-api-key":  config.LogsAPIToken(),
+				},
+			),
+		)
+	default:
+		return stdoutlog.New()
+	}
+}
+
+func initTracesExporter(ctx context.Context) (tracesdk.SpanExporter, error) {
+	switch config.TracesExporter() {
+	default:
+		return otlptracehttp.New(
+			ctx,
+			otlptracehttp.WithEndpoint(config.TracesAddress()),
+			otlptracehttp.WithInsecure(),
+		)
+	}
+}
+
+func initMetricsExporter(ctx context.Context) (metricsdk.Exporter, error) {
+	switch config.MetricsExporter() {
+	default:
+		return otlpmetrichttp.New(
+			ctx,
+			otlpmetrichttp.WithEndpoint(config.MetricsAddress()),
+			otlpmetrichttp.WithInsecure(),
+		)
+	}
 }
 
 func initWriteClient() writer.Writer {

@@ -2,9 +2,11 @@ package noop
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/w-h-a/flags/internal/server/clients/writer"
-	"github.com/w-h-a/pkg/telemetry/log"
 )
 
 type client struct {
@@ -19,7 +21,8 @@ func NewWriter(opts ...writer.Option) writer.Writer {
 	options := writer.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		log.Fatal(err)
+		slog.ErrorContext(context.Background(), fmt.Sprintf("failed to validate noop writer: %v", err))
+		os.Exit(1)
 	}
 
 	c := &client{
