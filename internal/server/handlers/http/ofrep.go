@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/config"
 	"github.com/w-h-a/flags/internal/server/services/cache"
 	"github.com/w-h-a/flags/internal/server/services/export"
@@ -32,7 +33,7 @@ func (o *OFREP) PostOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flagState, err := o.cacheService.EvaluateFlag(ctx, flagKey, evalCtx)
-	if err != nil && errors.Is(err, cache.ErrNotFound) {
+	if err != nil && errors.Is(err, flags.ErrNotFound) {
 		writeRsp(w, http.StatusNotFound, flagState)
 		return
 	} else if err != nil {

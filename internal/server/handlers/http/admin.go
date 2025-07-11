@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/services/admin"
 )
 
@@ -24,7 +25,7 @@ func (a *Admin) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flag, err := a.adminService.RetrieveFlag(ctx, flagKey)
-	if err != nil && errors.Is(err, admin.ErrNotFound) {
+	if err != nil && errors.Is(err, flags.ErrNotFound) {
 		writeRsp(w, http.StatusNotFound, map[string]any{"error": err.Error()})
 		return
 	} else if err != nil {
@@ -69,7 +70,7 @@ func (a *Admin) PutOne(w http.ResponseWriter, r *http.Request) {
 
 	found := true
 
-	if _, err := a.adminService.RetrieveFlag(ctx, flagKey); err != nil && errors.Is(err, admin.ErrNotFound) {
+	if _, err := a.adminService.RetrieveFlag(ctx, flagKey); err != nil && errors.Is(err, flags.ErrNotFound) {
 		found = false
 	} else if err != nil {
 		writeRsp(w, http.StatusInternalServerError, map[string]any{"error": err.Error()})
@@ -105,7 +106,7 @@ func (a *Admin) PatchOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flag, err := a.adminService.RetrieveFlag(ctx, flagKey)
-	if err != nil && errors.Is(err, admin.ErrNotFound) {
+	if err != nil && errors.Is(err, flags.ErrNotFound) {
 		writeRsp(w, http.StatusNotFound, map[string]any{"error": err.Error()})
 		return
 	} else if err != nil {

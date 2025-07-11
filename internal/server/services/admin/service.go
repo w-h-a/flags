@@ -13,10 +13,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	ErrNotFound = errors.New("flag not found")
-)
-
 type Service struct {
 	writeClient writer.Writer
 	readClient  reader.Reader
@@ -25,7 +21,7 @@ type Service struct {
 func (s *Service) RetrieveFlag(ctx context.Context, key string) (map[string]*flags.Flag, error) {
 	bs, err := s.readClient.ReadByKey(ctx, key)
 	if err != nil && errors.Is(err, reader.ErrRecordNotFound) {
-		return nil, ErrNotFound
+		return nil, flags.ErrNotFound
 	} else if err != nil {
 		return nil, err
 	}
