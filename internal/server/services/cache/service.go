@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"maps"
 	"sort"
@@ -12,10 +11,6 @@ import (
 	"github.com/w-h-a/flags/internal/flags"
 	"github.com/w-h-a/flags/internal/server/clients/reader"
 	"github.com/w-h-a/flags/internal/server/config"
-)
-
-var (
-	ErrNotFound = errors.New("flag not found")
 )
 
 type Service struct {
@@ -40,7 +35,7 @@ func (s *Service) EvaluateFlag(ctx context.Context, flagKey string, evalCtx map[
 			ErrorMessage: fmt.Sprintf("flag for key '%s' does not exist", flagKey),
 		}
 
-		return result, ErrNotFound
+		return result, flags.ErrNotFound
 	}
 
 	flagValue, resolutionDetails := flag.Evaluate(evalCtx)
