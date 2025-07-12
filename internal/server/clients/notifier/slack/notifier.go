@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -146,8 +145,9 @@ func NewNotifier(opts ...notifier.Option) notifier.Notifier {
 	options := notifier.NewOptions(opts...)
 
 	if len(options.URL) == 0 {
-		slog.ErrorContext(context.Background(), "slack notifier client requires URL")
-		os.Exit(1)
+		detail := "slack notifier client requires URL"
+		slog.ErrorContext(context.Background(), detail)
+		panic(detail)
 	}
 
 	httpClient := http.DefaultClient
