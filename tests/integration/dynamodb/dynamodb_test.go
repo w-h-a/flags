@@ -29,7 +29,6 @@ func TestMain(m *testing.M) {
 
 	if err := populateDynamoDB(); err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	// waiting for cache to populate

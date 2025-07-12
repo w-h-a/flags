@@ -3,7 +3,6 @@ package mock
 import (
 	"context"
 	"log/slog"
-	"os"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/server/clients/exporter"
@@ -36,8 +35,9 @@ func NewExporter(opts ...exporter.Option) exporter.Exporter {
 	options := exporter.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to validate mock exporter options", "error", err)
-		os.Exit(1)
+		detail := "failed to validate mock exporter options"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	p := &exporter.Parser{}

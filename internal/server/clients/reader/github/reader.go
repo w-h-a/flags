@@ -6,7 +6,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -59,8 +58,9 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to configure github reader", "error", err)
-		os.Exit(1)
+		detail := "failed to configure github reader"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	httpClient := http.DefaultClient

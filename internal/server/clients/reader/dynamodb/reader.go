@@ -3,7 +3,6 @@ package dynamodb
 import (
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -28,8 +27,9 @@ func init() {
 		awsconfig.WithRegion(config.Region()),
 	)
 	if err != nil {
-		slog.ErrorContext(context.Background(), "failed to register dynamodb reader with otel", "error", err)
-		os.Exit(1)
+		detail := "failed to register dynamodb reader with otel"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
@@ -107,8 +107,9 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to validate dynamodb reader options", "error", err)
-		os.Exit(1)
+		detail := "failed to validate dynamodb reader options"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	c := &client{
@@ -147,8 +148,9 @@ func NewReader(opts ...reader.Option) reader.Reader {
 			},
 		},
 	); err != nil && !strings.Contains(err.Error(), "ResourceInUseException") {
-		slog.ErrorContext(context.Background(), "failed to create table for dynamodb reader", "error", err)
-		os.Exit(1)
+		detail := "failed to create table for dynamodb reader"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	return c

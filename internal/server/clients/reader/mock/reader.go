@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"maps"
-	"os"
 	"sync"
 
 	"github.com/w-h-a/flags/internal/flags"
@@ -57,8 +56,9 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to validate mock reader options", "error", err)
-		os.Exit(1)
+		detail := "failed to validate mock reader options"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	c := &Client{

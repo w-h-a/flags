@@ -24,8 +24,9 @@ func NewReader(opts ...reader.Option) reader.Reader {
 	options := reader.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to configure local file reader", "error", err)
-		os.Exit(1)
+		detail := "failed to configure local file reader"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	c := &client{

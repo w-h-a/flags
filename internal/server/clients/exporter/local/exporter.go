@@ -57,8 +57,9 @@ func NewExporter(opts ...exporter.Option) exporter.Exporter {
 	options := exporter.NewOptions(opts...)
 
 	if err := options.Validate(); err != nil {
-		slog.ErrorContext(context.Background(), "failed to validate local exporter options", "error", err)
-		os.Exit(1)
+		detail := "failed to validate local exporter options"
+		slog.ErrorContext(context.Background(), detail, "error", err)
+		panic(detail)
 	}
 
 	p := &exporter.Parser{}
